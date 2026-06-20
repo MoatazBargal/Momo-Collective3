@@ -4,12 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import { Check, CreditCard, Banknote } from "lucide-react";
 import { toast } from "sonner";
+import { createOrder } from "@/lib/api";
 
 type PaymentMethod = "online" | "cod";
 
 export default function Checkout() {
   const [step, setStep] = useState<"shipping" | "payment" | "confirmation">("shipping");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
+  const [orderNumber, setOrderNumber] = useState<string>("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -40,11 +42,33 @@ export default function Checkout() {
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // NOTE: cart items are mocked here until shared cart state (Context/localStorage)
+      // is wired. The order shape & API call below are production-ready.
+      const items = [
+        { productName: "Oversized T-Shirt", productSlug: "oversized-tee", color: "Black", size: "L", quantity: 2, pricePerUnit: 650 },
+        { productName: "Wide-Leg Denim", productSlug: "wide-leg-denim", color: "Indigo", size: "M", quantity: 1, pricePerUnit: 1100 },
+      ];
+
+      const result = await createOrder({
+        items,
+        paymentMethod: paymentMethod === "cod" ? "COD" : "Online",
+        shipping: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          postalCode: formData.postalCode || undefined,
+          country: "Egypt",
+        },
+      });
+
+      setOrderNumber(result.orderNumber);
       setStep("confirmation");
-      toast.success("Order placed successfully!");
-    } catch (error) {
-      toast.error("Failed to place order. Please try again.");
+      toast.success(`Order ${result.orderNumber} placed!`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to place order. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +99,7 @@ export default function Checkout() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-dim">Order ID:</span>
-                  <span className="font-semibold">#ORD-2026-001234</span>
+                  <span className="font-semibold">{orderNumber || "—"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-dim">Delivery to:</span>

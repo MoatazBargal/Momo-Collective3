@@ -28,7 +28,7 @@ export default function Contact() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("Message sent! We'll get back to you soon.");
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-    } catch (error) {
+    } catch {
       toast.error("Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);

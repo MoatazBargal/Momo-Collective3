@@ -1,258 +1,260 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Edit2, Trash2, BarChart3, Package, ShoppingCart } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Link } from "wouter";
 import { toast } from "sonner";
+import {
+  BarChart3,
+  Package,
+  ShoppingBag,
+  LogOut,
+  RefreshCw,
+  TrendingUp,
+  Clock,
+} from "lucide-react";
+import {
+  fetchAdminOrders,
+  updateOrderStatus,
+  fetchAdminStats,
+  type AdminOrder,
+  type AdminStats,
+} from "@/lib/api";
 
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  stock: number;
-  category: string;
-}
+const STATUSES = ["All", "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
+const NEXT_STATUS: Record<string, string[]> = {
+  Pending: ["Confirmed", "Cancelled"],
+  Confirmed: ["Shipped", "Cancelled"],
+  Shipped: ["Delivered"],
+  Delivered: [],
+  Cancelled: [],
+};
 
-interface Order {
-  id: string;
-  customer: string;
-  total: number;
-  status: "pending" | "processing" | "shipped";
-  date: string;
-}
-
-const MOCK_PRODUCTS: Product[] = [
-  { id: 1, name: "Oversized T-Shirt", price: 650, stock: 45, category: "Tops" },
-  { id: 2, name: "Wide-Leg Denim", price: 1100, stock: 28, category: "Bottoms" },
-  { id: 3, name: "Heavyweight Hoodie", price: 1200, stock: 15, category: "Tops" },
-];
-
-const MOCK_ORDERS: Order[] = [
-  { id: "ORD-001", customer: "Ahmed Hassan", total: 2900, status: "shipped", date: "2026-06-10" },
-  { id: "ORD-002", customer: "Fatima Ali", total: 1650, status: "processing", date: "2026-06-12" },
-  { id: "ORD-003", customer: "Mohamed Saleh", total: 3200, status: "pending", date: "2026-06-15" },
-];
+const TOKEN_KEY = "momo_admin_token";
 
 export default function AdminDashboard() {
-  const [tab, setTab] = useState<"overview" | "products" | "orders">("overview");
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
-  const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
-  const [showProductForm, setShowProductForm] = useState(false);
+  const [token, setToken] = useState<string>(() =>
+    typeof window !== "undefined" ? sessionStorage.getItem(TOKEN_KEY) || "" : ""
+  );
+  const [tokenInput, setTokenInput] = useState("");
+  const [authed, setAuthed] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-  const totalOrders = orders.length;
-  const totalProducts = products.length;
-  const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [filter, setFilter] = useState("All");
 
-  const deleteProduct = (id: number) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-    toast.success("Product deleted");
+  const load = useCallback(
+    async (tok: string, status: string) => {
+      setLoading(true);
+      try {
+        const [s, o] = await Promise.all([
+          fetchAdminStats(tok),
+          fetchAdminOrders(tok, status),
+        ]);
+        setStats(s);
+        setOrders(o.orders);
+        setAuthed(true);
+        sessionStorage.setItem(TOKEN_KEY, tok);
+      } catch (err) {
+        setAuthed(false);
+        sessionStorage.removeItem(TOKEN_KEY);
+        toast.error(err instanceof Error ? err.message : "Failed to load");
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  // Auto-load if token already saved
+  useEffect(() => {
+    if (token) load(token, filter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Reload orders when filter changes (if authed)
+  useEffect(() => {
+    if (authed && token) {
+      fetchAdminOrders(token, filter).then((o) => setOrders(o.orders)).catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tokenInput.trim()) return;
+    setToken(tokenInput.trim());
+    load(tokenInput.trim(), filter);
   };
 
-  const updateOrderStatus = (id: string, status: "pending" | "processing" | "shipped") => {
-    setOrders((prev) =>
-      prev.map((order) => (order.id === id ? { ...order, status } : order))
-    );
-    toast.success("Order status updated");
+  const handleLogout = () => {
+    sessionStorage.removeItem(TOKEN_KEY);
+    setToken("");
+    setAuthed(false);
+    setOrders([]);
+    setStats(null);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "shipped":
-        return "text-green-600 bg-green-50";
-      case "processing":
-        return "text-blue-600 bg-blue-50";
-      case "pending":
-        return "text-accent surface";
-      default:
-        return "text-dim surface";
+  const handleStatusChange = async (id: number, status: string) => {
+    try {
+      await updateOrderStatus(token, id, status);
+      toast.success(`Order marked ${status}`);
+      load(token, filter);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Update failed");
     }
   };
 
+  // ---- Login gate ----
+  if (!authed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6 glow-field" style={{ backgroundColor: "var(--momo-bg)" }}>
+        <div className="w-full max-w-sm glass-strong p-8" style={{ borderRadius: "16px" }}>
+          <div className="text-center mb-8">
+            <Link href="/">
+              <span className="font-black text-3xl text-white cursor-pointer" style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}>
+                MOMO<span className="text-accent">.</span>
+              </span>
+            </Link>
+            <p className="text-dim text-sm mt-2 uppercase tracking-widest">Admin Access</p>
+          </div>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <input
+              type="password"
+              value={tokenInput}
+              onChange={(e) => setTokenInput(e.target.value)}
+              placeholder="Admin token"
+              className="w-full bg-transparent border border-momo text-white px-4 py-3 placeholder:text-dim focus:outline-none focus:border-accent"
+              style={{ borderRadius: 0 }}
+            />
+            <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-60">
+              {loading ? "Verifying..." : "Sign In"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Dashboard ----
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "var(--momo-bg)" }}>
-      <div className="section-padding container">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="heading-section">Admin Dashboard</h1>
-          <Button className="btn-primary">Logout</Button>
+    <div className="min-h-screen glow-field overflow-hidden" style={{ backgroundColor: "var(--momo-bg)" }}>
+      <div className="container section-padding-sm">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <span className="eyebrow block mb-1">Dashboard</span>
+            <h1 className="heading-section">Orders</h1>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => load(token, filter)} className="glass-chip p-2.5 text-white" style={{ borderRadius: "10px" }} aria-label="Refresh">
+              <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`} />
+            </button>
+            <button onClick={handleLogout} className="glass-chip p-2.5 text-white" style={{ borderRadius: "10px" }} aria-label="Logout">
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-4 mb-8">
-          {["overview", "products", "orders"].map((t) => (
+        {/* Stats */}
+        {stats && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <StatCard icon={<TrendingUp className="w-5 h-5" />} label="Revenue" value={`${Number(stats.totalRevenue).toLocaleString()} LE`} />
+            <StatCard icon={<ShoppingBag className="w-5 h-5" />} label="Total Orders" value={String(stats.totalOrders)} />
+            <StatCard icon={<Clock className="w-5 h-5" />} label="Pending" value={String(stats.pendingOrders)} accent />
+            <StatCard icon={<Package className="w-5 h-5" />} label="Best Seller" value={stats.bestSeller} small />
+          </div>
+        )}
+
+        {/* Filter tabs */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {STATUSES.map((s) => (
             <button
-              key={t}
-              onClick={() => setTab(t as any)}
-              className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                tab === t
-                  ? "bg-accent text-white"
-                  : "surface text-dim hover:text-white"
+              key={s}
+              onClick={() => setFilter(s)}
+              className={`px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors ${
+                filter === s ? "bg-accent text-white" : "glass-chip text-white"
               }`}
+              style={{ fontFamily: "var(--font-display)", borderRadius: "8px" }}
             >
-              {t.charAt(0).toUpperCase() + t.slice(1)}
+              {s}
             </button>
           ))}
         </div>
 
-        {/* Overview Tab */}
-        {tab === "overview" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="surface p-6 border border-momo">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-dim text-sm mb-2">Total Revenue</p>
-                  <p className="text-3xl font-bold">{totalRevenue} LE</p>
-                </div>
-                <BarChart3 className="w-10 h-10 text-accent" />
-              </div>
-            </div>
-
-            <div className="surface p-6 border border-momo">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-dim text-sm mb-2">Total Orders</p>
-                  <p className="text-3xl font-bold">{totalOrders}</p>
-                </div>
-                <ShoppingCart className="w-10 h-10 text-blue-500" />
-              </div>
-            </div>
-
-            <div className="surface p-6 border border-momo">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-dim text-sm mb-2">Total Products</p>
-                  <p className="text-3xl font-bold">{totalProducts}</p>
-                </div>
-                <Package className="w-10 h-10 text-green-500" />
-              </div>
-            </div>
-
-            <div className="surface p-6 border border-momo">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-dim text-sm mb-2">Total Stock</p>
-                  <p className="text-3xl font-bold">{totalStock}</p>
-                </div>
-                <Package className="w-10 h-10 text-purple-500" />
-              </div>
-            </div>
+        {/* Orders list */}
+        {orders.length === 0 ? (
+          <div className="glass p-12 text-center" style={{ borderRadius: "16px" }}>
+            <BarChart3 className="w-10 h-10 mx-auto text-dim mb-3" />
+            <p className="text-dim">No orders {filter !== "All" ? `with status "${filter}"` : "yet"}.</p>
           </div>
-        )}
-
-        {/* Products Tab */}
-        {tab === "products" && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="heading-subsection">Products</h2>
-              <Button className="btn-primary">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Product
-              </Button>
-            </div>
-
-            <div className="surface border border-momo overflow-hidden">
-              <table className="w-full">
-                <thead className="surface-2 border-b border-momo">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Name</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Price</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Stock</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Category</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product) => (
-                    <tr key={product.id} className="border-b border-momo hover:bg-white/5">
-                      <td className="px-6 py-4">{product.name}</td>
-                      <td className="px-6 py-4">{product.price} LE</td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                            product.stock > 20
-                              ? "bg-green-50 text-green-600"
-                              : product.stock > 10
-                                ? "bg-yellow-50 text-yellow-600"
-                                : "bg-red-50 text-red-600"
-                          }`}
-                        >
-                          {product.stock}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">{product.category}</td>
-                      <td className="px-6 py-4 flex gap-2">
-                        <button className="p-2 hover:bg-white/10 transition-colors">
-                          <Edit2 className="w-4 h-4 text-blue-600" />
-                        </button>
-                        <button
-                          onClick={() => deleteProduct(product.id)}
-                          className="p-2 hover:bg-white/10 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Orders Tab */}
-        {tab === "orders" && (
-          <div>
-            <h2 className="heading-subsection mb-6">Recent Orders</h2>
-
-            <div className="surface border border-momo overflow-hidden">
-              <table className="w-full">
-                <thead className="surface-2 border-b border-momo">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Order ID</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Customer</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Total</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Date</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Status</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => (
-                    <tr key={order.id} className="border-b border-momo hover:bg-white/5">
-                      <td className="px-6 py-4 font-semibold">{order.id}</td>
-                      <td className="px-6 py-4">{order.customer}</td>
-                      <td className="px-6 py-4 font-semibold text-accent">{order.total} LE</td>
-                      <td className="px-6 py-4 text-sm text-dim">{order.date}</td>
-                      <td className="px-6 py-4">
-                        <select
-                          value={order.status}
-                          onChange={(e) =>
-                            updateOrderStatus(
-                              order.id,
-                              e.target.value as "pending" | "processing" | "shipped"
-                            )
-                          }
-                          className={`px-3 py-1 rounded-full text-sm font-semibold border-0 cursor-pointer ${getStatusColor(
-                            order.status
-                          )}`}
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="shipped">Shipped</option>
-                        </select>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Button variant="outline" size="sm">
-                          View
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        ) : (
+          <div className="space-y-3">
+            {orders.map((order) => (
+              <div key={order.id} className="glass p-5" style={{ borderRadius: "14px" }}>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-1">
+                      <span className="font-bold" style={{ fontFamily: "var(--font-display)" }}>{order.orderNumber}</span>
+                      <StatusBadge status={order.status} />
+                    </div>
+                    <p className="text-dim text-sm">
+                      {order.shippingFirstName} {order.shippingLastName} · {order.shippingPhone} · {order.shippingCity}
+                    </p>
+                    <p className="text-dim text-xs mt-1">
+                      {new Date(order.createdAt).toLocaleString("en-EG")} · {order.paymentMethod}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-xl font-bold text-accent">{Number(order.total).toLocaleString()} LE</span>
+                    {NEXT_STATUS[order.status]?.length > 0 && (
+                      <div className="flex gap-2">
+                        {NEXT_STATUS[order.status].map((next) => (
+                          <button
+                            key={next}
+                            onClick={() => handleStatusChange(order.id, next)}
+                            className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition-colors ${
+                              next === "Cancelled" ? "border border-momo text-dim hover:text-white" : "bg-accent text-white"
+                            }`}
+                            style={{ fontFamily: "var(--font-display)", borderRadius: "8px" }}
+                          >
+                            {next}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+function StatCard({ icon, label, value, accent, small }: { icon: React.ReactNode; label: string; value: string; accent?: boolean; small?: boolean }) {
+  return (
+    <div className={`p-5 ${accent ? "glass-accent" : "glass"}`} style={{ borderRadius: "14px" }}>
+      <div className="flex items-center gap-2 text-dim mb-2">
+        {icon}
+        <span className="text-xs uppercase tracking-widest">{label}</span>
+      </div>
+      <p className={`font-bold ${small ? "text-base" : "text-2xl"}`} style={{ fontFamily: "var(--font-display)" }}>{value}</p>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const colors: Record<string, string> = {
+    Pending: "text-accent",
+    Confirmed: "text-blue-400",
+    Shipped: "text-purple-400",
+    Delivered: "text-green-400",
+    Cancelled: "text-dim",
+  };
+  return (
+    <span className={`text-xs font-bold uppercase tracking-widest ${colors[status] || "text-white"}`}>
+      ● {status}
+    </span>
   );
 }
