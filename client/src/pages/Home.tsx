@@ -5,9 +5,9 @@ import { ChevronRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-black dark:text-white">
-      {/* Hero Section */}
-      <section className="relative w-full h-screen md:h-[600px] overflow-hidden">
+    <div className="bg-white dark:bg-slate-950 text-black dark:text-white">
+      {/* Hero Section - calc(100vh - 64px) to account for fixed navbar */}
+      <section className="relative w-full h-[calc(100vh-64px)] md:h-[600px] overflow-hidden">
         <img
           src={ASSETS.heroBanner.compressed}
           alt="Momo Collective Hero"

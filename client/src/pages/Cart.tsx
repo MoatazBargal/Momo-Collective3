@@ -42,7 +42,7 @@ export default function Cart() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-white text-black">
+      <div className="bg-white">
         <div className="section-padding container">
           <h1 className="heading-section mb-8">Shopping Cart</h1>
           <div className="text-center py-20">
@@ -58,7 +58,7 @@ export default function Cart() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="bg-white">
       <div className="section-padding container">
         <h1 className="heading-section mb-8">Shopping Cart</h1>
 

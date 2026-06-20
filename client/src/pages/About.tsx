@@ -3,7 +3,7 @@ import { Link } from "wouter";
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-black dark:text-white">
+    <div className="bg-white dark:bg-slate-950">
       {/* Header */}
       <section className="section-padding-sm border-b border-border">
         <div className="container">

@@ -6,11 +6,18 @@ type UseAuthOptions = {
   redirectPath?: string;
 };
 
+export type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: "user" | "admin";
+};
+
 export function useAuth(_options?: UseAuthOptions) {
   return {
-    user: null,
+    user: null as AuthUser | null,
     loading: false,
-    error: null,
+    error: null as Error | null,
     isAuthenticated: false,
     refresh: () => {},
     logout: async () => {},

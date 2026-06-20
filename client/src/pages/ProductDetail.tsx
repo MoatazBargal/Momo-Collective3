@@ -87,7 +87,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-black dark:text-white">
+    <div className="bg-white dark:bg-slate-950">
       <div className="section-padding container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Gallery */}

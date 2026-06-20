@@ -15,22 +15,69 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import PageLayout from "./components/PageLayout";
+
+/** Pages that use their own full-screen layout (no navbar/footer from PageLayout) */
+const AuthPage = () => (
+  <div className="min-h-screen">
+    <Auth />
+  </div>
+);
 
 function Router() {
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/shop"} component={Shop} />
-      <Route path={"/product/:slug"} component={ProductDetail} />
-      <Route path={"/about"} component={About} />
-      <Route path={"/contact"} component={Contact} />
-      <Route path={"/cart"} component={Cart} />
-      <Route path={"/checkout"} component={Checkout} />
-      <Route path={"/auth"} component={Auth} />
-      <Route path={"/profile"} component={Profile} />
-      <Route path={"/wishlist"} component={Wishlist} />
-      <Route path={"/admin"} component={AdminDashboard} />
-      <Route path={"/404"} component={NotFound} />
+      <Route path="/">
+        <PageLayout>
+          <Home />
+        </PageLayout>
+      </Route>
+      <Route path="/shop">
+        <PageLayout>
+          <Shop />
+        </PageLayout>
+      </Route>
+      <Route path="/product/:slug">
+        {(params) => (
+          <PageLayout>
+            <ProductDetail params={params} />
+          </PageLayout>
+        )}
+      </Route>
+      <Route path="/about">
+        <PageLayout>
+          <About />
+        </PageLayout>
+      </Route>
+      <Route path="/contact">
+        <PageLayout>
+          <Contact />
+        </PageLayout>
+      </Route>
+      <Route path="/cart">
+        <PageLayout>
+          <Cart />
+        </PageLayout>
+      </Route>
+      <Route path="/checkout">
+        <PageLayout>
+          <Checkout />
+        </PageLayout>
+      </Route>
+      <Route path="/wishlist">
+        <PageLayout>
+          <Wishlist />
+        </PageLayout>
+      </Route>
+      <Route path="/profile">
+        <PageLayout>
+          <Profile />
+        </PageLayout>
+      </Route>
+      <Route path="/auth" component={AuthPage} />
+      {/* Admin: no public footer, standalone layout */}
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>

@@ -6,7 +6,7 @@ import { Check } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Checkout() {
-  const [step, setStep] = useState<"shipping" | "payment" | "confirmation" | "confirmation">("shipping");
+  const [step, setStep] = useState<"shipping" | "payment" | "confirmation">("shipping");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -47,9 +47,14 @@ export default function Checkout() {
     }
   };
 
-  if (step === "confirmation") {
+  const currentStep = step; // capture before TS narrows below
+  // stepValue is the same value but typed as string so TS doesn't narrow it
+  // after the confirmation early-return below, allowing progress bar comparisons.
+  const stepValue = step as string;
+
+  if (currentStep === "confirmation") {
     return (
-      <div className="min-h-screen bg-white text-black">
+      <div className="bg-white">
         <div className="section-padding container max-w-2xl">
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center mx-auto mb-6">
@@ -96,7 +101,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="bg-white">
       <div className="section-padding container max-w-2xl">
         <h1 className="heading-section mb-8">Checkout</h1>
 
@@ -104,17 +109,19 @@ export default function Checkout() {
         <div className="flex gap-4 mb-12">
           <div
             className={`flex-1 h-1 rounded-full ${
-              step !== "shipping" ? "bg-orange-500" : "bg-gray-200"
+              stepValue !== "shipping" ? "bg-orange-500" : "bg-gray-200"
             }`}
           ></div>
           <div
             className={`flex-1 h-1 rounded-full ${
-              (step as any) === "payment" || (step as any) === "confirmation" ? "bg-orange-500" : "bg-gray-200"
+              stepValue === "payment" || stepValue === "confirmation"
+                ? "bg-orange-500"
+                : "bg-gray-200"
             }`}
           ></div>
           <div
             className={`flex-1 h-1 rounded-full ${
-              (step as any) === "confirmation" ? "bg-orange-500" : "bg-gray-200"
+              stepValue === "confirmation" ? "bg-orange-500" : "bg-gray-200"
             }`}
           ></div>
         </div>

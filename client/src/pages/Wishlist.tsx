@@ -8,13 +8,14 @@ import { ASSETS } from "@/assets";
 interface WishlistItem {
   id: number;
   name: string;
+  slug: string;
   price: number;
   image: string;
 }
 
 const MOCK_WISHLIST: WishlistItem[] = [
-  { id: 1, name: "Oversized T-Shirt", price: 650, image: ASSETS.products.tee.compressed },
-  { id: 3, name: "Heavyweight Hoodie", price: 1200, image: ASSETS.products.hoodie.compressed },
+  { id: 1, name: "Oversized T-Shirt", slug: "oversized-tee", price: 650, image: ASSETS.products.tee.compressed },
+  { id: 3, name: "Heavyweight Hoodie", slug: "heavyweight-hoodie", price: 1200, image: ASSETS.products.hoodie.compressed },
 ];
 
 export default function Wishlist() {
@@ -31,7 +32,7 @@ export default function Wishlist() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-white text-black">
+      <div className="bg-white">
         <div className="section-padding container">
           <h1 className="heading-section mb-8">My Wishlist</h1>
           <div className="text-center py-20">
@@ -47,7 +48,7 @@ export default function Wishlist() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="bg-white">
       <div className="section-padding container">
         <h1 className="heading-section mb-8">My Wishlist ({items.length})</h1>
 
@@ -58,7 +59,7 @@ export default function Wishlist() {
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <button
                   onClick={() => removeItem(item.id)}
@@ -72,7 +73,7 @@ export default function Wishlist() {
               <p className="text-2xl font-bold text-orange-500 mb-4">{item.price} LE</p>
 
               <div className="flex gap-2">
-                <Link href={`/product/${item.name.toLowerCase().replace(/\s+/g, "-")}`}>
+                <Link href={`/product/${item.slug}`}>
                   <Button variant="outline" className="flex-1">
                     View
                   </Button>

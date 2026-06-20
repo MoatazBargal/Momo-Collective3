@@ -65,7 +65,7 @@ export default function Shop() {
   }, [selectedCategory, searchQuery, sortBy]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-black dark:text-white">
+    <div className="bg-white dark:bg-slate-950">
       {/* Header */}
       <section className="section-padding-sm border-b border-border">
         <div className="container">
@@ -159,7 +159,7 @@ export default function Shop() {
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <h3 className="heading-subsection mb-2">{product.name}</h3>
@@ -182,7 +182,7 @@ export default function Shop() {
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <div className="flex-1 flex items-center justify-between">

@@ -66,7 +66,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="bg-white">
       <div className="section-padding container max-w-4xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-12">
