@@ -62,14 +62,14 @@ export default function AdminDashboard() {
       case "processing":
         return "text-blue-600 bg-blue-50";
       case "pending":
-        return "text-orange-600 bg-orange-50";
+        return "text-accent surface";
       default:
-        return "text-gray-600 bg-gray-50";
+        return "text-dim surface";
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-black">
+    <div className="min-h-screen" style={{ backgroundColor: "var(--momo-bg)" }}>
       <div className="section-padding container">
         <div className="flex justify-between items-center mb-8">
           <h1 className="heading-section">Admin Dashboard</h1>
@@ -84,8 +84,8 @@ export default function AdminDashboard() {
               onClick={() => setTab(t as any)}
               className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                 tab === t
-                  ? "bg-orange-500 text-white"
-                  : "bg-white text-gray-600 hover:text-black"
+                  ? "bg-accent text-white"
+                  : "surface text-dim hover:text-white"
               }`}
             >
               {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -96,40 +96,40 @@ export default function AdminDashboard() {
         {/* Overview Tab */}
         {tab === "overview" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="surface p-6 border border-momo">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm mb-2">Total Revenue</p>
+                  <p className="text-dim text-sm mb-2">Total Revenue</p>
                   <p className="text-3xl font-bold">{totalRevenue} LE</p>
                 </div>
-                <BarChart3 className="w-10 h-10 text-orange-500" />
+                <BarChart3 className="w-10 h-10 text-accent" />
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="surface p-6 border border-momo">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm mb-2">Total Orders</p>
+                  <p className="text-dim text-sm mb-2">Total Orders</p>
                   <p className="text-3xl font-bold">{totalOrders}</p>
                 </div>
                 <ShoppingCart className="w-10 h-10 text-blue-500" />
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="surface p-6 border border-momo">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm mb-2">Total Products</p>
+                  <p className="text-dim text-sm mb-2">Total Products</p>
                   <p className="text-3xl font-bold">{totalProducts}</p>
                 </div>
                 <Package className="w-10 h-10 text-green-500" />
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="surface p-6 border border-momo">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm mb-2">Total Stock</p>
+                  <p className="text-dim text-sm mb-2">Total Stock</p>
                   <p className="text-3xl font-bold">{totalStock}</p>
                 </div>
                 <Package className="w-10 h-10 text-purple-500" />
@@ -149,9 +149,9 @@ export default function AdminDashboard() {
               </Button>
             </div>
 
-            <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+            <div className="surface border border-momo overflow-hidden">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="surface-2 border-b border-momo">
                   <tr>
                     <th className="px-6 py-3 text-left text-sm font-semibold">Name</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold">Price</th>
@@ -162,7 +162,7 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   {products.map((product) => (
-                    <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <tr key={product.id} className="border-b border-momo hover:bg-white/5">
                       <td className="px-6 py-4">{product.name}</td>
                       <td className="px-6 py-4">{product.price} LE</td>
                       <td className="px-6 py-4">
@@ -180,12 +180,12 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4">{product.category}</td>
                       <td className="px-6 py-4 flex gap-2">
-                        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                        <button className="p-2 hover:bg-white/10 transition-colors">
                           <Edit2 className="w-4 h-4 text-blue-600" />
                         </button>
                         <button
                           onClick={() => deleteProduct(product.id)}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          className="p-2 hover:bg-white/10 transition-colors"
                         >
                           <Trash2 className="w-4 h-4 text-red-600" />
                         </button>
@@ -203,9 +203,9 @@ export default function AdminDashboard() {
           <div>
             <h2 className="heading-subsection mb-6">Recent Orders</h2>
 
-            <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+            <div className="surface border border-momo overflow-hidden">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="surface-2 border-b border-momo">
                   <tr>
                     <th className="px-6 py-3 text-left text-sm font-semibold">Order ID</th>
                     <th className="px-6 py-3 text-left text-sm font-semibold">Customer</th>
@@ -217,11 +217,11 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   {orders.map((order) => (
-                    <tr key={order.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <tr key={order.id} className="border-b border-momo hover:bg-white/5">
                       <td className="px-6 py-4 font-semibold">{order.id}</td>
                       <td className="px-6 py-4">{order.customer}</td>
-                      <td className="px-6 py-4 font-semibold text-orange-500">{order.total} LE</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{order.date}</td>
+                      <td className="px-6 py-4 font-semibold text-accent">{order.total} LE</td>
+                      <td className="px-6 py-4 text-sm text-dim">{order.date}</td>
                       <td className="px-6 py-4">
                         <select
                           value={order.status}

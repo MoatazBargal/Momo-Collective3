@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { ShoppingBag, Heart, Menu, X, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ShoppingBag, Heart, Menu, X, User, Search } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -13,134 +12,120 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false);
   }, [location]);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
 
   const isActive = (href: string) =>
     href === "/" ? location === "/" : location.startsWith(href);
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
-        scrolled
-          ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100"
-          : "bg-white"
-      }`}
-    >
-      <nav className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
-        <div className="flex items-center justify-between h-16 md:h-18">
-          {/* Logo */}
-          <Link href="/">
-            <span className="font-bold text-xl tracking-tight text-black cursor-pointer select-none"
-              style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: "-0.03em" }}>
-              MOMO<span className="text-orange-500">.</span>
-            </span>
-          </Link>
-
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <span
-                  className={`text-sm font-semibold tracking-wide transition-colors cursor-pointer ${
-                    isActive(link.href)
-                      ? "text-orange-500"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  {link.label}
-                </span>
-              </Link>
-            ))}
-          </div>
-
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-2">
-            <Link href="/wishlist">
-              <Button variant="ghost" size="sm" aria-label="Wishlist"
-                className={isActive("/wishlist") ? "text-orange-500" : ""}>
-                <Heart className="w-5 h-5" />
-              </Button>
-            </Link>
-            <Link href="/profile">
-              <Button variant="ghost" size="sm" aria-label="Account"
-                className={isActive("/profile") ? "text-orange-500" : ""}>
-                <User className="w-5 h-5" />
-              </Button>
-            </Link>
-            <Link href="/cart">
-              <Button
-                size="sm"
-                className={`bg-black hover:bg-gray-900 text-white ml-2 ${
-                  isActive("/cart") ? "ring-2 ring-orange-500 ring-offset-1" : ""
-                }`}
-                aria-label="Cart"
-              >
-                <ShoppingBag className="w-4 h-4 mr-1.5" />
-                Cart
-              </Button>
-            </Link>
-          </div>
-
-          {/* Mobile: icons + burger */}
-          <div className="flex md:hidden items-center gap-1">
-            <Link href="/wishlist">
-              <Button variant="ghost" size="sm" aria-label="Wishlist">
-                <Heart className="w-5 h-5" />
-              </Button>
-            </Link>
-            <Link href="/cart">
-              <Button variant="ghost" size="sm" aria-label="Cart">
-                <ShoppingBag className="w-5 h-5" />
-              </Button>
-            </Link>
+    <header className="sticky top-0 z-50 surface border-b border-momo">
+      <nav className="container">
+        <div className="flex items-center justify-between h-16 gap-4">
+          {/* Left: burger (mobile) + logo */}
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="md:hidden p-2 -ml-2 text-white"
               aria-label="Toggle menu"
               aria-expanded={mobileOpen}
             >
-              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
+            <Link href="/">
+              <span
+                className="font-black text-2xl tracking-tight text-white cursor-pointer select-none"
+                style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}
+              >
+                MOMO<span className="text-accent">.</span>
+              </span>
+            </Link>
           </div>
-        </div>
 
-        {/* Mobile Menu */}
-        {mobileOpen && (
-          <div className="md:hidden border-t border-gray-100 py-4 space-y-1">
+          {/* Center: desktop nav links */}
+          <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             {NAV_LINKS.map((link) => (
               <Link key={link.href} href={link.href}>
                 <span
-                  className={`block px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    isActive(link.href)
-                      ? "text-orange-500 bg-orange-50"
-                      : "text-gray-700 hover:text-black hover:bg-gray-50"
+                  className={`text-xs font-bold tracking-widest uppercase transition-colors cursor-pointer ${
+                    isActive(link.href) ? "text-accent" : "text-white hover:text-accent"
                   }`}
+                  style={{ fontFamily: "var(--font-display)" }}
                 >
                   {link.label}
                 </span>
               </Link>
             ))}
-            <div className="pt-3 border-t border-gray-100 mt-3">
-              <Link href="/profile">
-                <span className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:text-black hover:bg-gray-50 transition-colors cursor-pointer">
-                  My Account
+          </div>
+
+          {/* Right: actions */}
+          <div className="flex items-center gap-1">
+            <Link href="/shop">
+              <button className="p-2 text-white hover:text-accent transition-colors" aria-label="Search">
+                <Search className="w-5 h-5" />
+              </button>
+            </Link>
+            <Link href="/wishlist">
+              <button
+                className={`p-2 transition-colors ${isActive("/wishlist") ? "text-accent" : "text-white hover:text-accent"}`}
+                aria-label="Wishlist"
+              >
+                <Heart className="w-5 h-5" />
+              </button>
+            </Link>
+            <Link href="/profile">
+              <button
+                className={`hidden md:inline-flex p-2 transition-colors ${isActive("/profile") ? "text-accent" : "text-white hover:text-accent"}`}
+                aria-label="Account"
+              >
+                <User className="w-5 h-5" />
+              </button>
+            </Link>
+            <Link href="/cart">
+              <button
+                className={`p-2 transition-colors ${isActive("/cart") ? "text-accent" : "text-white hover:text-accent"}`}
+                aria-label="Cart"
+              >
+                <ShoppingBag className="w-5 h-5" />
+              </button>
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile menu overlay */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 top-16 z-40" style={{ background: "var(--momo-bg)" }}>
+          <div className="container py-8 space-y-1">
+            {NAV_LINKS.map((link) => (
+              <Link key={link.href} href={link.href}>
+                <span
+                  className={`block py-4 text-2xl font-black uppercase tracking-tight border-b border-momo transition-colors cursor-pointer ${
+                    isActive(link.href) ? "text-accent" : "text-white"
+                  }`}
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  {link.label}
                 </span>
               </Link>
-            </div>
+            ))}
+            <Link href="/profile">
+              <span className="block py-4 text-sm font-bold uppercase tracking-widest text-dim cursor-pointer mt-4">
+                My Account
+              </span>
+            </Link>
           </div>
-        )}
-      </nav>
+        </div>
+      )}
     </header>
   );
 }

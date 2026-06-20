@@ -1,28 +1,35 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
-import Home from "@/pages/Home";
-import Shop from "@/pages/Shop";
-import ProductDetail from "@/pages/ProductDetail";
-import About from "@/pages/About";
-import Contact from "@/pages/Contact";
-import Cart from "@/pages/Cart";
-import Checkout from "@/pages/Checkout";
-import Auth from "@/pages/Auth";
-import Profile from "@/pages/Profile";
-import Wishlist from "@/pages/Wishlist";
-import AdminDashboard from "@/pages/AdminDashboard";
 import { Route, Switch } from "wouter";
+import { lazy, Suspense } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import PageLayout from "./components/PageLayout";
 
-/** Pages that use their own full-screen layout (no navbar/footer from PageLayout) */
-const AuthPage = () => (
-  <div className="min-h-screen">
-    <Auth />
-  </div>
-);
+// Eager: above-the-fold / most-visited routes
+import Home from "@/pages/Home";
+import Shop from "@/pages/Shop";
+import NotFound from "@/pages/NotFound";
+
+// Lazy: heavier or less-frequent routes (code-split into separate chunks)
+const ProductDetail = lazy(() => import("@/pages/ProductDetail"));
+const About = lazy(() => import("@/pages/About"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const Cart = lazy(() => import("@/pages/Cart"));
+const Checkout = lazy(() => import("@/pages/Checkout"));
+const Auth = lazy(() => import("@/pages/Auth"));
+const Profile = lazy(() => import("@/pages/Profile"));
+const Wishlist = lazy(() => import("@/pages/Wishlist"));
+const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+
+// Lightweight loading fallback
+function RouteLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 function Router() {
   return (
@@ -40,45 +47,67 @@ function Router() {
       <Route path="/product/:slug">
         {(params) => (
           <PageLayout>
-            <ProductDetail params={params} />
+            <Suspense fallback={<RouteLoader />}>
+              <ProductDetail params={params} />
+            </Suspense>
           </PageLayout>
         )}
       </Route>
       <Route path="/about">
         <PageLayout>
-          <About />
+          <Suspense fallback={<RouteLoader />}>
+            <About />
+          </Suspense>
         </PageLayout>
       </Route>
       <Route path="/contact">
         <PageLayout>
-          <Contact />
+          <Suspense fallback={<RouteLoader />}>
+            <Contact />
+          </Suspense>
         </PageLayout>
       </Route>
       <Route path="/cart">
         <PageLayout>
-          <Cart />
+          <Suspense fallback={<RouteLoader />}>
+            <Cart />
+          </Suspense>
         </PageLayout>
       </Route>
       <Route path="/checkout">
         <PageLayout>
-          <Checkout />
+          <Suspense fallback={<RouteLoader />}>
+            <Checkout />
+          </Suspense>
         </PageLayout>
       </Route>
       <Route path="/wishlist">
         <PageLayout>
-          <Wishlist />
+          <Suspense fallback={<RouteLoader />}>
+            <Wishlist />
+          </Suspense>
         </PageLayout>
       </Route>
       <Route path="/profile">
         <PageLayout>
-          <Profile />
+          <Suspense fallback={<RouteLoader />}>
+            <Profile />
+          </Suspense>
         </PageLayout>
       </Route>
-      <Route path="/auth" component={AuthPage} />
-      {/* Admin: no public footer, standalone layout */}
-      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/auth">
+        <div className="min-h-screen">
+          <Suspense fallback={<RouteLoader />}>
+            <Auth />
+          </Suspense>
+        </div>
+      </Route>
+      <Route path="/admin">
+        <Suspense fallback={<RouteLoader />}>
+          <AdminDashboard />
+        </Suspense>
+      </Route>
       <Route path="/404" component={NotFound} />
-      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );

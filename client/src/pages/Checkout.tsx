@@ -54,38 +54,38 @@ export default function Checkout() {
 
   if (currentStep === "confirmation") {
     return (
-      <div className="bg-white">
+      <div style={{ backgroundColor: "var(--momo-bg)" }}>
         <div className="section-padding container max-w-2xl">
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 bg-accent text-white rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="w-8 h-8" />
             </div>
             <h1 className="heading-section mb-4">Order Confirmed!</h1>
-            <p className="text-lg text-gray-600 mb-2">Thank you for your purchase.</p>
-            <p className="text-gray-600 mb-8">
+            <p className="text-lg text-dim mb-2">Thank you for your purchase.</p>
+            <p className="text-dim mb-8">
               Your order has been placed and will be delivered soon. We'll contact you at{" "}
               <strong>{formData.phone}</strong> with delivery details.
             </p>
 
-            <div className="bg-gray-50 p-6 rounded-lg mb-8 text-left">
+            <div className="surface p-6 rounded-lg mb-8 text-left">
               <h2 className="font-bold mb-4">Order Details</h2>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Order ID:</span>
+                  <span className="text-dim">Order ID:</span>
                   <span className="font-semibold">#ORD-2026-001234</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Delivery to:</span>
+                  <span className="text-dim">Delivery to:</span>
                   <span className="font-semibold">
                     {formData.address}, {formData.city}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Estimated Delivery:</span>
+                  <span className="text-dim">Estimated Delivery:</span>
                   <span className="font-semibold">3-5 business days</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Payment Method:</span>
+                  <span className="text-dim">Payment Method:</span>
                   <span className="font-semibold">Cash on Delivery</span>
                 </div>
               </div>
@@ -101,7 +101,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="bg-white">
+    <div style={{ backgroundColor: "var(--momo-bg)" }}>
       <div className="section-padding container max-w-2xl">
         <h1 className="heading-section mb-8">Checkout</h1>
 
@@ -109,19 +109,19 @@ export default function Checkout() {
         <div className="flex gap-4 mb-12">
           <div
             className={`flex-1 h-1 rounded-full ${
-              stepValue !== "shipping" ? "bg-orange-500" : "bg-gray-200"
+              stepValue !== "shipping" ? "bg-accent" : "bg-gray-200"
             }`}
           ></div>
           <div
             className={`flex-1 h-1 rounded-full ${
               stepValue === "payment" || stepValue === "confirmation"
-                ? "bg-orange-500"
+                ? "bg-accent"
                 : "bg-gray-200"
             }`}
           ></div>
           <div
             className={`flex-1 h-1 rounded-full ${
-              stepValue === "confirmation" ? "bg-orange-500" : "bg-gray-200"
+              stepValue === "confirmation" ? "bg-accent" : "bg-gray-200"
             }`}
           ></div>
         </div>
@@ -228,35 +228,35 @@ export default function Checkout() {
             <div>
               <h2 className="heading-subsection mb-6">Payment Method</h2>
 
-              <div className="bg-orange-50 p-6 rounded-lg mb-6 border-2 border-orange-500">
+              <div className="surface p-6 rounded-lg mb-6 border-2 border-accent">
                 <div className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-1">
                     <Check className="w-4 h-4 text-white" />
                   </div>
                   <div>
                     <h3 className="font-bold mb-2">Cash on Delivery</h3>
-                    <p className="text-gray-600">
+                    <p className="text-dim">
                       Pay when your order arrives. No payment required now.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-6 rounded-lg mb-6">
+              <div className="surface p-6 rounded-lg mb-6">
                 <h3 className="font-bold mb-4">Order Summary</h3>
-                <div className="space-y-2 mb-4 pb-4 border-b border-gray-200">
+                <div className="space-y-2 mb-4 pb-4 border-b border-momo">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Subtotal</span>
+                    <span className="text-dim">Subtotal</span>
                     <span>2,850 LE</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Shipping</span>
+                    <span className="text-dim">Shipping</span>
                     <span>50 LE</span>
                   </div>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-bold">Total</span>
-                  <span className="font-bold text-2xl text-orange-500">2,900 LE</span>
+                  <span className="font-bold text-2xl text-accent">2,900 LE</span>
                 </div>
               </div>
 

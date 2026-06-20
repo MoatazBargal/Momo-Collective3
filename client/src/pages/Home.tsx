@@ -1,146 +1,106 @@
-import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ASSETS } from "@/assets";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import ProductCard from "@/components/ProductCard";
+import { PRODUCTS } from "@/data/products";
 
 export default function Home() {
   return (
-    <div className="bg-white dark:bg-slate-950 text-black dark:text-white">
-      {/* Hero Section - calc(100vh - 64px) to account for fixed navbar */}
-      <section className="relative w-full h-[calc(100vh-64px)] md:h-[600px] overflow-hidden">
+    <div style={{ backgroundColor: "var(--momo-bg)" }}>
+      {/* ===== HERO ===== */}
+      <section className="relative w-full h-[calc(100vh-7rem)] min-h-[520px] overflow-hidden">
         <img
           src={ASSETS.heroBanner.compressed}
-          alt="Momo Collective Hero"
-          className="w-full h-full object-cover"
+          alt="Momo Collective"
+          className="absolute inset-0 w-full h-full object-cover"
+          fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-          <div className="text-center text-white px-6 md:px-12">
-            <h1 className="heading-hero mb-4">MOMO COLLECTIVE</h1>
-            <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto font-light">
-              Built for culture. Driven by individuality. United by style.
-            </p>
+        {/* Gradient scrim for legibility */}
+        <div
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.3) 50%, rgba(10,10,10,0.5) 100%)" }}
+        />
+        <div className="relative h-full container flex flex-col justify-end pb-16 md:pb-24">
+          <span className="eyebrow mb-4">Summer Drop · 2026</span>
+          <h1 className="heading-hero text-white max-w-4xl mb-6">
+            Wear the<br />
+            <span className="text-accent">Statement.</span>
+          </h1>
+          <p className="text-lg text-white/80 max-w-xl mb-8">
+            Built for culture. Driven by individuality. Raw streetwear for those who refuse to blend in.
+          </p>
+          <div className="flex flex-wrap gap-4">
             <Link href="/shop">
-              <Button className="btn-primary text-lg px-8 py-3">
-                Explore the Collection <ChevronRight className="ml-2 w-5 h-5" />
-              </Button>
+              <button className="btn-primary inline-flex items-center gap-2">
+                Shop the Collection <ArrowRight className="w-4 h-4" />
+              </button>
+            </Link>
+            <Link href="/about">
+              <button className="btn-outline-light">Our Story</button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Featured Products Section */}
+      {/* ===== LATEST DROP ===== */}
       <section className="section-padding container">
-        <div className="mb-12">
-          <h2 className="heading-section mb-2">Latest Drop</h2>
-          <div className="w-16 h-1 bg-accent"></div>
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <span className="eyebrow mb-2 block">Just Landed</span>
+            <h2 className="heading-section">Latest Drop</h2>
+          </div>
+          <Link href="/shop">
+            <span className="hidden md:inline-flex items-center gap-1.5 text-sm font-bold uppercase tracking-widest text-white hover:text-accent transition-colors cursor-pointer"
+              style={{ fontFamily: "var(--font-display)" }}>
+              View all <ArrowRight className="w-4 h-4" />
+            </span>
+          </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Oversized T-Shirt */}
-          <Link href="/product/oversized-tee">
-            <div className="group cursor-pointer">
-              <div className="relative overflow-hidden rounded-lg mb-4 bg-muted h-80 md:h-96">
-                <img
-                  src={ASSETS.products.tee.compressed}
-                  alt="Oversized T-Shirt"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <h3 className="heading-subsection mb-2">Oversized T-Shirt</h3>
-              <p className="text-muted-foreground mb-3">Premium comfort. Bold presence.</p>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold">650 LE</span>
-                <Button variant="outline" size="sm">
-                  View <ChevronRight className="ml-1 w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </Link>
-
-          {/* Wide-Leg Denim */}
-          <Link href="/product/wide-leg-denim">
-            <div className="group cursor-pointer">
-              <div className="relative overflow-hidden rounded-lg mb-4 bg-muted h-80 md:h-96">
-                <img
-                  src={ASSETS.products.denim.compressed}
-                  alt="Wide-Leg Denim"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <h3 className="heading-subsection mb-2">Wide-Leg Denim</h3>
-              <p className="text-muted-foreground mb-3">Structured silhouette. Timeless edge.</p>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold">1,100 LE</span>
-                <Button variant="outline" size="sm">
-                  View <ChevronRight className="ml-1 w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </Link>
-
-          {/* Heavyweight Hoodie */}
-          <Link href="/product/heavyweight-hoodie">
-            <div className="group cursor-pointer">
-              <div className="relative overflow-hidden rounded-lg mb-4 bg-muted h-80 md:h-96">
-                <img
-                  src={ASSETS.products.hoodie.compressed}
-                  alt="Heavyweight Hoodie"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <h3 className="heading-subsection mb-2">Heavyweight Hoodie</h3>
-              <p className="text-muted-foreground mb-3">Substance and presence. Pure comfort.</p>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold">1,200 LE</span>
-                <Button variant="outline" size="sm">
-                  View <ChevronRight className="ml-1 w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </Link>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {PRODUCTS.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       </section>
 
-      {/* Brand Story Section */}
-      <section className="section-padding bg-muted/50">
-        <div className="container">
-          <div className="max-w-3xl">
-            <h2 className="heading-section mb-6">Our Story</h2>
-            <div className="space-y-4 text-lg leading-relaxed">
+      {/* ===== BRAND STATEMENT ===== */}
+      <section className="surface border-y border-momo">
+        <div className="container section-padding">
+          <div className="max-w-4xl">
+            <span className="eyebrow mb-4 block">The Movement</span>
+            <h2 className="heading-section mb-8 leading-tight">
+              No pretense.<br />No compromise.<br /><span className="text-accent">Just presence.</span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-white/70 text-lg leading-relaxed">
               <p>
-                Momo Collective is rooted in street culture. We create pieces that speak to the
-                confident, the bold, the unapologetically individual. Every garment is designed
-                with intention—built to last, crafted to inspire.
+                Momo Collective is rooted in street culture. Every garment is designed with
+                intention — built to last, crafted to inspire the confident and the bold.
               </p>
               <p>
-                We believe in raw authenticity. No pretense. No compromise. Just quality menswear
-                that captures the gritty energy of urban life, refined through meticulous
-                execution.
-              </p>
-              <p>
-                This is more than fashion. It's a movement for those who refuse to blend in.
+                We believe in raw authenticity. Quality menswear that captures the gritty energy
+                of urban life, refined through meticulous execution. This is more than fashion.
               </p>
             </div>
             <Link href="/about">
-              <Button className="mt-8 btn-primary">
-                Learn More About Us
-              </Button>
+              <button className="btn-outline-light mt-10">Learn More</button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="section-padding bg-accent text-accent-foreground">
-        <div className="container text-center">
-          <h2 className="heading-section mb-4">Ready to Stand Out?</h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Explore our full collection and find your next statement piece.
+      {/* ===== CTA STRIP ===== */}
+      <section className="bg-accent">
+        <div className="container py-16 md:py-20 text-center">
+          <h2 className="heading-section text-white mb-4">Ready to Stand Out?</h2>
+          <p className="text-white/90 text-lg mb-8 max-w-xl mx-auto">
+            Explore the full collection and find your next statement piece.
           </p>
           <Link href="/shop">
-            <Button variant="secondary" className="text-lg px-8 py-3">
+            <button className="bg-white text-black px-8 py-4 font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors"
+              style={{ fontFamily: "var(--font-display)", borderRadius: 0 }}>
               Shop Now
-            </Button>
+            </button>
           </Link>
         </div>
       </section>
