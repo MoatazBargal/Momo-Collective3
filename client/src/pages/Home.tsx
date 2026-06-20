@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <div style={{ backgroundColor: "var(--momo-bg)" }}>
       {/* ===== HERO ===== */}
-      <section className="relative w-full h-[calc(100vh-7rem)] min-h-[520px] overflow-hidden">
+      <section className="relative w-full h-[calc(100vh-7rem)] min-h-[600px] overflow-hidden">
         <img
           src={ASSETS.heroBanner.compressed}
           alt="Momo Collective"
@@ -18,32 +18,73 @@ export default function Home() {
         {/* Gradient scrim for legibility */}
         <div
           className="absolute inset-0"
-          style={{ background: "linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.3) 50%, rgba(10,10,10,0.5) 100%)" }}
+          style={{ background: "linear-gradient(to right, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.4) 55%, rgba(10,10,10,0.2) 100%)" }}
         />
-        <div className="relative h-full container flex flex-col justify-end pb-16 md:pb-24">
-          <span className="eyebrow mb-4">Summer Drop · 2026</span>
-          <h1 className="heading-hero text-white max-w-4xl mb-6">
-            Wear the<br />
-            <span className="text-accent">Statement.</span>
-          </h1>
-          <p className="text-lg text-white/80 max-w-xl mb-8">
-            Built for culture. Driven by individuality. Raw streetwear for those who refuse to blend in.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Link href="/shop">
-              <button className="btn-primary inline-flex items-center gap-2">
-                Shop the Collection <ArrowRight className="w-4 h-4" />
-              </button>
-            </Link>
-            <Link href="/about">
-              <button className="btn-outline-light">Our Story</button>
-            </Link>
+        {/* Ambient accent glow to give the glass panel something to refract */}
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            width: "30rem", height: "30rem", left: "8%", bottom: "5%",
+            background: "radial-gradient(circle, rgba(255,87,34,0.3), transparent 70%)",
+            filter: "blur(80px)",
+          }}
+        />
+        <div className="relative h-full container flex flex-col justify-center">
+          <div className="max-w-2xl">
+            <span className="eyebrow mb-4 block">Summer Drop · 2026</span>
+            <h1 className="heading-hero text-white mb-6">
+              Best time<br />
+              is <span className="text-accent italic">now.</span>
+            </h1>
+            <p className="text-base md:text-lg text-white/80 max-w-lg mb-6 leading-relaxed">
+              Designed for the modern pace of life. A collection that balances effortless style
+              with the quiet strength of living in the present.
+            </p>
+
+            {/* Glass gallery — "Different Angles" */}
+            <div className="glass p-4 mb-6 inline-block" style={{ borderRadius: "16px" }}>
+              <span className="eyebrow mb-3 block" style={{ letterSpacing: "0.3em" }}>Different Angles</span>
+              <div className="flex gap-3 mb-4">
+                {[ASSETS.products.hoodie.compressed, ASSETS.products.hoodie.original, ASSETS.products.tee.compressed].map((img, i) => (
+                  <div
+                    key={i}
+                    className="glass-hover overflow-hidden"
+                    style={{ width: "72px", height: "90px", borderRadius: "10px", border: "1px solid var(--glass-border)" }}
+                  >
+                    <img src={img} alt={`Angle ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                ))}
+              </div>
+              {/* Size chips */}
+              <div className="flex gap-2">
+                {["XS", "S", "M", "L"].map((size, i) => (
+                  <span
+                    key={size}
+                    className={`glass-chip px-3 py-1.5 text-xs font-bold ${i === 3 ? "glass-chip--active" : "text-white"}`}
+                    style={{ fontFamily: "var(--font-display)", borderRadius: "8px" }}
+                  >
+                    {size}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4">
+              <Link href="/shop">
+                <button className="btn-primary inline-flex items-center gap-2">
+                  Explore Collection <ArrowRight className="w-4 h-4" />
+                </button>
+              </Link>
+              <Link href="/about">
+                <button className="btn-outline-light">Our Story</button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ===== LATEST DROP ===== */}
-      <section className="section-padding container">
+      <section className="section-padding container glow-field">
         <div className="flex items-end justify-between mb-10">
           <div>
             <span className="eyebrow mb-2 block">Just Landed</span>

@@ -67,7 +67,7 @@ export default function Profile() {
 
   return (
     <div style={{ backgroundColor: "var(--momo-bg)" }}>
-      <div className="section-padding container max-w-4xl">
+      <div className="section-padding container max-w-4xl glow-field overflow-hidden">
         {/* Header */}
         <div className="flex justify-between items-center mb-12">
           <div>
@@ -121,7 +121,7 @@ export default function Profile() {
               MOCK_ORDERS.map((order) => (
                 <div
                   key={order.id}
-                  className="p-6 border border-momo rounded-lg hover:surface transition-colors"
+                  className="p-6 glass glass-hover" style={{ borderRadius: "14px" }}
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
@@ -157,9 +157,10 @@ export default function Profile() {
             {MOCK_ADDRESSES.map((address) => (
               <div
                 key={address.id}
-                className={`p-6 border-2 rounded-lg transition-colors ${
-                  address.isDefault ? "border-accent surface" : "border-momo"
+                className={`p-6 transition-colors ${
+                  address.isDefault ? "glass-accent" : "glass glass-hover"
                 }`}
+                style={{ borderRadius: "14px" }}
               >
                 <div className="flex justify-between items-start mb-4">
                   <div>

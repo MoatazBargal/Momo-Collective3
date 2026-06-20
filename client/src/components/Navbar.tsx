@@ -28,7 +28,7 @@ export default function Navbar() {
     href === "/" ? location === "/" : location.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-50 surface border-b border-momo">
+    <header className="sticky top-0 z-50 glass-nav">
       <nav className="container">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Left: burger (mobile) + logo */}

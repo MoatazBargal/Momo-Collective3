@@ -17,9 +17,9 @@ export default function Footer() {
   };
 
   return (
-    <footer className="surface border-t border-momo mt-auto">
+    <footer className="glass-nav mt-auto">
       {/* Newsletter band */}
-      <div className="border-b border-momo">
+      <div className="border-b border-momo glow-field overflow-hidden">
         <div className="container section-padding-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>

@@ -46,7 +46,7 @@ export default function Contact() {
       </section>
 
       {/* Content */}
-      <section className="section-padding container">
+      <section className="section-padding container glow-field overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Info */}
           <div>
@@ -76,7 +76,7 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className="surface p-6 rounded-lg mt-8">
+              <div className="glass p-6 mt-8" style={{ borderRadius: "16px" }}>
                 <h3 className="font-bold mb-3">Response Time</h3>
                 <p className="text-dim">
                   We typically respond to all inquiries within 24 hours during business days.

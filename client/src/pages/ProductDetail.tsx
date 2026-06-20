@@ -155,7 +155,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
             </div>
 
             {/* Stock */}
-            <div className="surface p-4 border border-momo">
+            <div className="glass p-4" style={{ borderRadius: "12px" }}>
               <p className="text-sm">
                 {product.inStock ? (
                   <span className="text-accent font-bold uppercase tracking-wide">● In Stock</span>

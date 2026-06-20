@@ -15,8 +15,8 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/product/${product.slug}`}>
-      <div className="product-card group">
-        <div className="product-card__media">
+      <div className="product-card group glass glass-hover overflow-hidden" style={{ borderRadius: "14px" }}>
+        <div className="product-card__media" style={{ borderRadius: 0 }}>
           {onSale ? (
             <span className="badge-sale">Save {saved} {CURRENCY_SYMBOL}</span>
           ) : product.isNew ? (
@@ -45,7 +45,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </button>
         </div>
 
-        <div className="pt-4 pb-2">
+        <div className="p-4">
           <h3 className="text-sm font-semibold uppercase tracking-wide mb-1.5"
             style={{ fontFamily: "var(--font-display)" }}>
             {product.name}

@@ -59,7 +59,7 @@ export default function Cart() {
 
   return (
     <div style={{ backgroundColor: "var(--momo-bg)" }}>
-      <div className="section-padding container">
+      <div className="section-padding container glow-field overflow-hidden">
         <h1 className="heading-section mb-8">Shopping Cart</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -68,7 +68,7 @@ export default function Cart() {
             {items.map((item) => (
               <div
                 key={item.id}
-                className="flex gap-6 p-6 border border-momo rounded-lg hover:surface transition-colors"
+                className="flex gap-6 p-6 glass glass-hover" style={{ borderRadius: "14px" }}
               >
                 <div className="w-24 h-24 flex-shrink-0 rounded-lg surface-2"></div>
                 <div className="flex-1">
@@ -107,7 +107,7 @@ export default function Cart() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="surface p-6 rounded-lg sticky top-20">
+            <div className="glass p-6 sticky top-20" style={{ borderRadius: "16px" }}>
               <h2 className="font-bold text-lg mb-6">Order Summary</h2>
 
               <div className="space-y-4 mb-6 pb-6 border-b border-momo">

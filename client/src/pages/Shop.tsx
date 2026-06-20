@@ -40,7 +40,7 @@ export default function Shop() {
       </section>
 
       {/* Filters */}
-      <section className="border-b border-momo sticky top-16 z-30 surface">
+      <section className="border-b border-momo sticky top-16 z-30 glass-nav">
         <div className="container py-5 space-y-5">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-dim" />

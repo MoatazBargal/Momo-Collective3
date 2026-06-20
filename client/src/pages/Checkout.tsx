@@ -55,7 +55,7 @@ export default function Checkout() {
   if (currentStep === "confirmation") {
     return (
       <div style={{ backgroundColor: "var(--momo-bg)" }}>
-        <div className="section-padding container max-w-2xl">
+        <div className="section-padding container max-w-2xl glow-field overflow-hidden">
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-accent text-white rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="w-8 h-8" />
@@ -67,7 +67,7 @@ export default function Checkout() {
               <strong>{formData.phone}</strong> with delivery details.
             </p>
 
-            <div className="surface p-6 rounded-lg mb-8 text-left">
+            <div className="glass p-6 mb-8 text-left" style={{ borderRadius: "16px" }}>
               <h2 className="font-bold mb-4">Order Details</h2>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
@@ -102,7 +102,7 @@ export default function Checkout() {
 
   return (
     <div style={{ backgroundColor: "var(--momo-bg)" }}>
-      <div className="section-padding container max-w-2xl">
+      <div className="section-padding container max-w-2xl glow-field overflow-hidden">
         <h1 className="heading-section mb-8">Checkout</h1>
 
         {/* Progress Indicator */}
@@ -228,7 +228,7 @@ export default function Checkout() {
             <div>
               <h2 className="heading-subsection mb-6">Payment Method</h2>
 
-              <div className="surface p-6 rounded-lg mb-6 border-2 border-accent">
+              <div className="glass-accent p-6 mb-6" style={{ borderRadius: "16px" }}>
                 <div className="flex items-start gap-4">
                   <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-1">
                     <Check className="w-4 h-4 text-white" />
@@ -242,7 +242,7 @@ export default function Checkout() {
                 </div>
               </div>
 
-              <div className="surface p-6 rounded-lg mb-6">
+              <div className="glass p-6 mb-6" style={{ borderRadius: "16px" }}>
                 <h3 className="font-bold mb-4">Order Summary</h3>
                 <div className="space-y-2 mb-4 pb-4 border-b border-momo">
                   <div className="flex justify-between">

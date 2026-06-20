@@ -13,7 +13,7 @@ export default function About() {
       </section>
 
       {/* Main Story */}
-      <section className="section-padding container">
+      <section className="section-padding container glow-field overflow-hidden">
         <div className="max-w-3xl">
           <h2 className="heading-subsection mb-6">Our Mission</h2>
           <div className="space-y-4 text-lg leading-relaxed mb-12">
@@ -73,7 +73,7 @@ export default function About() {
             hoodies—every item is a statement.
           </p>
 
-          <div className="surface p-8 rounded-lg mb-12">
+          <div className="glass p-8 mb-12" style={{ borderRadius: "16px" }}>
             <h3 className="font-bold text-xl mb-4">Why Choose Momo Collective?</h3>
             <ul className="space-y-3 text-lg">
               <li className="flex items-start gap-3">
