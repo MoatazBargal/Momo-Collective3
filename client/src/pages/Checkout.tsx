@@ -2,11 +2,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { Check } from "lucide-react";
+import { Check, CreditCard, Banknote } from "lucide-react";
 import { toast } from "sonner";
+
+type PaymentMethod = "online" | "cod";
 
 export default function Checkout() {
   const [step, setStep] = useState<"shipping" | "payment" | "confirmation">("shipping");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -86,7 +89,9 @@ export default function Checkout() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-dim">Payment Method:</span>
-                  <span className="font-semibold">Cash on Delivery</span>
+                  <span className="font-semibold">
+                    {paymentMethod === "online" ? "Paid Online" : "Cash on Delivery"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -228,18 +233,51 @@ export default function Checkout() {
             <div>
               <h2 className="heading-subsection mb-6">Payment Method</h2>
 
-              <div className="glass-accent p-6 mb-6" style={{ borderRadius: "16px" }}>
-                <div className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-1">
-                    <Check className="w-4 h-4 text-white" />
+              {/* Payment method selector */}
+              <div className="space-y-3 mb-6">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("cod")}
+                  className={`w-full text-left p-5 transition-all ${
+                    paymentMethod === "cod" ? "glass-accent" : "glass glass-hover"
+                  }`}
+                  style={{ borderRadius: "14px" }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                      paymentMethod === "cod" ? "border-accent" : "border-momo"
+                    }`}>
+                      {paymentMethod === "cod" && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
+                    </div>
+                    <Banknote className="w-5 h-5 text-accent" />
+                    <div>
+                      <h3 className="font-bold">Cash on Delivery</h3>
+                      <p className="text-dim text-sm">Pay when your order arrives.</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold mb-2">Cash on Delivery</h3>
-                    <p className="text-dim">
-                      Pay when your order arrives. No payment required now.
-                    </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("online")}
+                  className={`w-full text-left p-5 transition-all ${
+                    paymentMethod === "online" ? "glass-accent" : "glass glass-hover"
+                  }`}
+                  style={{ borderRadius: "14px" }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                      paymentMethod === "online" ? "border-accent" : "border-momo"
+                    }`}>
+                      {paymentMethod === "online" && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
+                    </div>
+                    <CreditCard className="w-5 h-5 text-accent" />
+                    <div>
+                      <h3 className="font-bold">Pay Online</h3>
+                      <p className="text-dim text-sm">Card, Meeza, Vodafone Cash, InstaPay.</p>
+                    </div>
                   </div>
-                </div>
+                </button>
               </div>
 
               <div className="glass p-6 mb-6" style={{ borderRadius: "16px" }}>
@@ -265,7 +303,11 @@ export default function Checkout() {
                 disabled={isSubmitting}
                 className="w-full btn-primary"
               >
-                {isSubmitting ? "Processing..." : "Place Order"}
+                {isSubmitting
+                  ? "Processing..."
+                  : paymentMethod === "online"
+                    ? "Continue to Payment"
+                    : "Place Order"}
               </Button>
 
               <Button

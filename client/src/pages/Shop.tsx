@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { PRODUCT_CATEGORIES } from "@shared/const";
 import { PRODUCTS } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
+import Reveal from "@/components/motion/Reveal";
 
 export default function Shop() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -87,8 +88,10 @@ export default function Shop() {
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {filteredProducts.map((product, i) => (
+              <Reveal key={product.id} delay={(i % 3) * 0.06}>
+                <ProductCard product={product} />
+              </Reveal>
             ))}
           </div>
         )}

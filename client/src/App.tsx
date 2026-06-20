@@ -5,6 +5,7 @@ import { lazy, Suspense } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import PageLayout from "./components/PageLayout";
+import LoadingScreen from "./components/LoadingScreen";
 
 // Eager: above-the-fold / most-visited routes
 import Home from "@/pages/Home";
@@ -118,6 +119,7 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
+          <LoadingScreen />
           <Toaster />
           <Router />
         </TooltipProvider>

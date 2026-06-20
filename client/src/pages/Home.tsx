@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { ASSETS } from "@/assets";
 import { ArrowRight } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
+import Reveal from "@/components/motion/Reveal";
 import { PRODUCTS } from "@/data/products";
 
 export default function Home() {
@@ -99,8 +100,10 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {PRODUCTS.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {PRODUCTS.map((product, i) => (
+            <Reveal key={product.id} delay={i * 0.08}>
+              <ProductCard product={product} />
+            </Reveal>
           ))}
         </div>
       </section>
@@ -108,7 +111,7 @@ export default function Home() {
       {/* ===== BRAND STATEMENT ===== */}
       <section className="surface border-y border-momo">
         <div className="container section-padding">
-          <div className="max-w-4xl">
+          <Reveal className="max-w-4xl">
             <span className="eyebrow mb-4 block">The Movement</span>
             <h2 className="heading-section mb-8 leading-tight">
               No pretense.<br />No compromise.<br /><span className="text-accent">Just presence.</span>
@@ -126,7 +129,7 @@ export default function Home() {
             <Link href="/about">
               <button className="btn-outline-light mt-10">Learn More</button>
             </Link>
-          </div>
+          </Reveal>
         </div>
       </section>
 

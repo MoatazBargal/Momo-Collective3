@@ -12,31 +12,48 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Home page has a full-bleed hero — navbar starts transparent there and
+  // turns to glass on scroll. Every other page is glass from the top.
+  const isHome = location === "/";
+  const transparent = isHome && !scrolled;
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     setMobileOpen(false);
   }, [location]);
 
+  // Close dropdown on Escape
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [mobileOpen]);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMobileOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const isActive = (href: string) =>
     href === "/" ? location === "/" : location.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-50 glass-nav">
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        transparent ? "bg-transparent" : "glass-nav"
+      }`}
+    >
       <nav className="container">
         <div className="flex items-center justify-between h-16 gap-4">
-          {/* Left: burger (mobile) + logo */}
+          {/* Left: mobile menu toggle + logo */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 -ml-2 text-white"
-              aria-label="Toggle menu"
+              className="md:hidden p-2 -ml-2 text-white inline-flex items-center gap-1"
+              aria-label="Menu"
               aria-expanded={mobileOpen}
             >
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -51,7 +68,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Center: desktop nav links */}
+          {/* Center: desktop nav */}
           <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             {NAV_LINKS.map((link) => (
               <Link key={link.href} href={link.href}>
@@ -102,29 +119,40 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu overlay */}
+      {/* Mobile dropdown — compact, glass, sits under the header (NOT full-screen) */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 top-16 z-40" style={{ background: "var(--momo-bg)" }}>
-          <div className="container py-8 space-y-1">
-            {NAV_LINKS.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <span
-                  className={`block py-4 text-2xl font-black uppercase tracking-tight border-b border-momo transition-colors cursor-pointer ${
-                    isActive(link.href) ? "text-accent" : "text-white"
-                  }`}
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  {link.label}
-                </span>
-              </Link>
-            ))}
-            <Link href="/profile">
-              <span className="block py-4 text-sm font-bold uppercase tracking-widest text-dim cursor-pointer mt-4">
-                My Account
-              </span>
-            </Link>
+        <>
+          {/* Click-away backdrop (transparent, just for dismiss) */}
+          <button
+            className="md:hidden fixed inset-0 top-16 z-40 cursor-default"
+            aria-label="Close menu"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="md:hidden absolute left-4 right-4 top-full mt-2 z-50 glass-strong overflow-hidden"
+            style={{ borderRadius: "14px" }}>
+            <div className="py-2">
+              {NAV_LINKS.map((link) => (
+                <Link key={link.href} href={link.href}>
+                  <span
+                    className={`block px-5 py-3 text-sm font-bold uppercase tracking-widest transition-colors cursor-pointer ${
+                      isActive(link.href) ? "text-accent glass-accent" : "text-white hover:text-accent"
+                    }`}
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {link.label}
+                  </span>
+                </Link>
+              ))}
+              <div className="border-t border-momo mt-1 pt-1">
+                <Link href="/profile">
+                  <span className="block px-5 py-3 text-sm font-bold uppercase tracking-widest text-dim hover:text-white transition-colors cursor-pointer">
+                    My Account
+                  </span>
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </header>
   );
