@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getDb, schema } from "../_lib/db";
-import { sendOrderEmail } from "../_lib/email";
-import { generateOrderNumber, applyCors } from "../_lib/utils";
-import { createOrderSchema, computeTotals } from "../../shared/orderTypes";
+import { getDb, schema } from "../../server-lib/db.js";
+import { sendOrderEmail } from "../../server-lib/email.js";
+import { generateOrderNumber, applyCors } from "../../server-lib/utils.js";
+import { createOrderSchema, computeTotals } from "../../shared/orderTypes.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (applyCors(req, res)) return;

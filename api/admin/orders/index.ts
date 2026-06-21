@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { desc, eq } from "drizzle-orm";
-import { getDb, schema } from "../../_lib/db";
-import { applyCors, requireAdmin } from "../../_lib/utils";
+import { getDb, schema } from "../../../server-lib/db.js";
+import { applyCors, requireAdmin } from "../../../server-lib/utils.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (applyCors(req, res)) return;

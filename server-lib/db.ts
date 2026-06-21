@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
-import * as schema from "../../drizzle/schema";
+import * as schema from "../drizzle/schema.js";
 
 /**
  * Neon serverless DB client. Uses HTTP driver — ideal for Vercel serverless

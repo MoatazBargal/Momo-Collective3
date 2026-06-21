@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import type { Order, OrderItem } from "../../drizzle/schema";
+import type { Order, OrderItem } from "../drizzle/schema.js";
 
 /**
  * Sends the new-order notification to the brand owner via Gmail SMTP.

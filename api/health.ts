@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { sql as dsql } from "drizzle-orm";
-import { getDb, schema } from "./_lib/db";
-import { applyCors } from "./_lib/utils";
+import { getDb, schema } from "../server-lib/db.js";
+import { applyCors } from "../server-lib/utils.js";
 
 /**
  * Health check — verifies the serverless function runs AND the Neon DB is reachable.

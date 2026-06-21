@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { eq } from "drizzle-orm";
-import { getDb, schema } from "../../_lib/db";
-import { applyCors, requireAdmin } from "../../_lib/utils";
+import { getDb, schema } from "../../../server-lib/db.js";
+import { applyCors, requireAdmin } from "../../../server-lib/utils.js";
 
 const VALID_STATUSES = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
 
