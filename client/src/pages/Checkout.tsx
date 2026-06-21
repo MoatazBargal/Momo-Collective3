@@ -5,10 +5,12 @@ import { Link } from "wouter";
 import { Check, CreditCard, Banknote } from "lucide-react";
 import { toast } from "sonner";
 import { createOrder } from "@/lib/api";
+import { useCart } from "@/contexts/CartContext";
 
 type PaymentMethod = "online" | "cod";
 
 export default function Checkout() {
+  const { items: cartItems, clearCart } = useCart();
   const [step, setStep] = useState<"shipping" | "payment" | "confirmation">("shipping");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [orderNumber, setOrderNumber] = useState<string>("");
@@ -28,6 +30,11 @@ export default function Checkout() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Live totals from the real cart
+  const subtotal = cartItems.reduce((sum, it) => sum + it.price * it.quantity, 0);
+  const shipping = subtotal === 0 ? 0 : subtotal >= 2000 ? 0 : 50;
+  const total = subtotal + shipping;
+
   const handleShippingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.firstName || !formData.email || !formData.address || !formData.city) {
@@ -39,15 +46,22 @@ export default function Checkout() {
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (cartItems.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
     setIsSubmitting(true);
 
     try {
-      // NOTE: cart items are mocked here until shared cart state (Context/localStorage)
-      // is wired. The order shape & API call below are production-ready.
-      const items = [
-        { productName: "Oversized T-Shirt", productSlug: "oversized-tee", color: "Black", size: "L", quantity: 2, pricePerUnit: 650 },
-        { productName: "Wide-Leg Denim", productSlug: "wide-leg-denim", color: "Indigo", size: "M", quantity: 1, pricePerUnit: 1100 },
-      ];
+      // Real cart contents from the shared cart context
+      const items = cartItems.map((it) => ({
+        productName: it.name,
+        productSlug: it.productSlug,
+        color: it.color,
+        size: it.size,
+        quantity: it.quantity,
+        pricePerUnit: it.price,
+      }));
 
       const result = await createOrder({
         items,
@@ -65,6 +79,7 @@ export default function Checkout() {
       });
 
       setOrderNumber(result.orderNumber);
+      clearCart();
       setStep("confirmation");
       toast.success(`Order ${result.orderNumber} placed!`);
     } catch (err) {
@@ -309,16 +324,16 @@ export default function Checkout() {
                 <div className="space-y-2 mb-4 pb-4 border-b border-momo">
                   <div className="flex justify-between">
                     <span className="text-dim">Subtotal</span>
-                    <span>2,850 LE</span>
+                    <span>{subtotal.toLocaleString()} LE</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-dim">Shipping</span>
-                    <span>50 LE</span>
+                    <span>{shipping === 0 ? "Free" : `${shipping} LE`}</span>
                   </div>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-bold">Total</span>
-                  <span className="font-bold text-2xl text-accent">2,900 LE</span>
+                  <span className="font-bold text-2xl text-accent">{total.toLocaleString()} LE</span>
                 </div>
               </div>
 

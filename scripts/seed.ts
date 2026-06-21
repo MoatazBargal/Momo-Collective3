@@ -2,10 +2,11 @@
  * Seed script — inserts Momo Collective's core products + variants into Neon.
  *
  * Usage:
- *   DATABASE_URL=postgresql://... pnpm tsx scripts/seed.ts
+ *   pnpm db:seed          (reads DATABASE_URL from .env)
  *
  * Idempotent: skips products whose slug already exists.
  */
+import "dotenv/config";
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import { eq } from "drizzle-orm";

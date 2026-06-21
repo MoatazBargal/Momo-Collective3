@@ -2,14 +2,25 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 import type { Product } from "@/data/products";
 import { CURRENCY_SYMBOL } from "@shared/const";
+import { useCart } from "@/contexts/CartContext";
 
 export default function ProductCard({ product }: { product: Product }) {
   const onSale = typeof product.compareAtPrice === "number";
   const saved = onSale ? product.compareAtPrice! - product.price : 0;
+  const { addItem } = useCart();
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // Quick-add uses the first color + default size M
+    addItem({
+      productSlug: product.slug,
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      color: product.colors[0]?.name || "Default",
+      size: "M",
+    });
     toast.success(`${product.name} added to cart`);
   };
 

@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Heart, Minus, Plus, Check } from "lucide-react";
 import { toast } from "sonner";
 import { SIZES, CURRENCY_SYMBOL } from "@shared/const";
 import { getProductBySlug, getRelatedProducts } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
+import { useCart } from "@/contexts/CartContext";
 
 export default function ProductDetail({ params }: { params: { slug: string } }) {
   const slug = params?.slug || "oversized-tee";
   const product = getProductBySlug(slug);
   const related = getRelatedProducts(slug);
+  const { addItem } = useCart();
 
   const [selectedColor, setSelectedColor] = useState(product?.colors[0]?.name || "");
   const [selectedSize, setSelectedSize] = useState<string>(SIZES[2]);
@@ -28,6 +29,15 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
   const onSale = typeof product.compareAtPrice === "number";
 
   const handleAddToCart = () => {
+    addItem({
+      productSlug: product.slug,
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      color: selectedColor,
+      size: selectedSize,
+      quantity,
+    });
     toast.success(`Added ${quantity} × ${product.name} (${selectedSize}) to cart`);
   };
 

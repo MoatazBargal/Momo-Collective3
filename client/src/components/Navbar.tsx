@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { ShoppingBag, Heart, Menu, X, User, Search } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -13,6 +14,7 @@ export default function Navbar() {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { count } = useCart();
 
   // Home page has a full-bleed hero — navbar starts transparent there and
   // turns to glass on scroll. Every other page is glass from the top.
@@ -109,10 +111,18 @@ export default function Navbar() {
             </Link>
             <Link href="/cart">
               <button
-                className={`p-2 transition-colors ${isActive("/cart") ? "text-accent" : "text-white hover:text-accent"}`}
+                className={`relative p-2 transition-colors ${isActive("/cart") ? "text-accent" : "text-white hover:text-accent"}`}
                 aria-label="Cart"
               >
                 <ShoppingBag className="w-5 h-5" />
+                {count > 0 && (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 bg-accent text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {count > 99 ? "99+" : count}
+                  </span>
+                )}
               </button>
             </Link>
           </div>

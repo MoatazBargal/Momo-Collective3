@@ -1,43 +1,16 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
-import { toast } from "sonner";
+import { CURRENCY_SYMBOL } from "@shared/const";
+import { useCart } from "@/contexts/CartContext";
 
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  size: string;
-  color: string;
-}
-
-const MOCK_CART_ITEMS: CartItem[] = [
-  { id: 1, name: "Oversized T-Shirt", price: 650, quantity: 2, size: "L", color: "Black" },
-  { id: 2, name: "Wide-Leg Denim", price: 1100, quantity: 1, size: "32", color: "Indigo" },
-];
+const SHIPPING_FLAT = 50;
+const FREE_SHIPPING_OVER = 2000;
 
 export default function Cart() {
-  const [items, setItems] = useState<CartItem[]>(MOCK_CART_ITEMS);
+  const { items, subtotal, updateQuantity, removeItem } = useCart();
 
-  const updateQuantity = (id: number, quantity: number) => {
-    if (quantity <= 0) {
-      removeItem(id);
-      return;
-    }
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
-    );
-  };
-
-  const removeItem = (id: number) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-    toast.success("Item removed from cart");
-  };
-
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = subtotal > 0 ? 50 : 0;
+  const shipping = subtotal === 0 ? 0 : subtotal >= FREE_SHIPPING_OVER ? 0 : SHIPPING_FLAT;
   const total = subtotal + shipping;
 
   if (items.length === 0) {
@@ -67,35 +40,43 @@ export default function Cart() {
           <div className="lg:col-span-2 space-y-6">
             {items.map((item) => (
               <div
-                key={item.id}
-                className="flex gap-6 p-6 glass glass-hover" style={{ borderRadius: "14px" }}
+                key={item.lineId}
+                className="flex gap-6 p-6 glass glass-hover"
+                style={{ borderRadius: "14px" }}
               >
-                <div className="w-24 h-24 flex-shrink-0 rounded-lg surface-2"></div>
+                <div className="w-24 h-24 flex-shrink-0 overflow-hidden surface-2" style={{ borderRadius: "10px" }}>
+                  {item.image && (
+                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
+                  )}
+                </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-lg mb-1">{item.name}</h3>
                   <p className="text-sm text-dim mb-3">
                     {item.color} • Size {item.size}
                   </p>
-                  <p className="text-2xl font-bold text-accent">{item.price} LE</p>
+                  <p className="text-2xl font-bold text-accent">{item.price} {CURRENCY_SYMBOL}</p>
                 </div>
                 <div className="flex flex-col items-end gap-4">
                   <button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem(item.lineId)}
                     className="text-dim hover:text-red-500 transition-colors"
+                    aria-label="Remove item"
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>
-                  <div className="flex items-center border border-momo rounded-lg">
+                  <div className="flex items-center border border-momo" style={{ borderRadius: "10px" }}>
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.lineId, item.quantity - 1)}
                       className="p-2 hover:surface-2"
+                      aria-label="Decrease quantity"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
                     <span className="px-4 py-2 font-semibold">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.lineId, item.quantity + 1)}
                       className="p-2 hover:surface-2"
+                      aria-label="Increase quantity"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -113,17 +94,24 @@ export default function Cart() {
               <div className="space-y-4 mb-6 pb-6 border-b border-momo">
                 <div className="flex justify-between">
                   <span className="text-dim">Subtotal</span>
-                  <span className="font-semibold">{subtotal} LE</span>
+                  <span className="font-semibold">{subtotal} {CURRENCY_SYMBOL}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-dim">Shipping</span>
-                  <span className="font-semibold">{shipping} LE</span>
+                  <span className="font-semibold">
+                    {shipping === 0 ? "Free" : `${shipping} ${CURRENCY_SYMBOL}`}
+                  </span>
                 </div>
+                {subtotal > 0 && subtotal < FREE_SHIPPING_OVER && (
+                  <p className="text-xs text-dim">
+                    Add {FREE_SHIPPING_OVER - subtotal} {CURRENCY_SYMBOL} more for free shipping
+                  </p>
+                )}
               </div>
 
               <div className="flex justify-between mb-8">
                 <span className="font-bold text-lg">Total</span>
-                <span className="font-bold text-2xl text-accent">{total} LE</span>
+                <span className="font-bold text-2xl text-accent">{total} {CURRENCY_SYMBOL}</span>
               </div>
 
               <Link href="/checkout">
