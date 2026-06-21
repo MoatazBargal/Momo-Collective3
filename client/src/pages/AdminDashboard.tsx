@@ -17,6 +17,7 @@ import {
   type AdminOrder,
   type AdminStats,
 } from "@/lib/api";
+import AdminProducts from "@/components/admin/AdminProducts";
 
 const STATUSES = ["All", "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
 const NEXT_STATUS: Record<string, string[]> = {
@@ -40,6 +41,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [filter, setFilter] = useState("All");
+  const [tab, setTab] = useState<"orders" | "products">("orders");
 
   const load = useCallback(
     async (tok: string, status: string) => {
@@ -142,18 +144,46 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <span className="eyebrow block mb-1">Dashboard</span>
-            <h1 className="heading-section">Orders</h1>
+            <h1 className="heading-section">{tab === "orders" ? "Orders" : "Products"}</h1>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => load(token, filter)} className="glass-chip p-2.5 text-white" style={{ borderRadius: "10px" }} aria-label="Refresh">
-              <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`} />
-            </button>
+            {tab === "orders" && (
+              <button onClick={() => load(token, filter)} className="glass-chip p-2.5 text-white" style={{ borderRadius: "10px" }} aria-label="Refresh">
+                <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`} />
+              </button>
+            )}
             <button onClick={handleLogout} className="glass-chip p-2.5 text-white" style={{ borderRadius: "10px" }} aria-label="Logout">
               <LogOut className="w-5 h-5" />
             </button>
           </div>
         </div>
 
+        {/* Tabs */}
+        <div className="flex gap-2 mb-8">
+          <button
+            onClick={() => setTab("orders")}
+            className={`px-5 py-2.5 text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2 transition-colors ${
+              tab === "orders" ? "bg-accent text-white" : "glass-chip text-white"
+            }`}
+            style={{ fontFamily: "var(--font-display)", borderRadius: "10px" }}
+          >
+            <ShoppingBag className="w-4 h-4" /> Orders
+          </button>
+          <button
+            onClick={() => setTab("products")}
+            className={`px-5 py-2.5 text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2 transition-colors ${
+              tab === "products" ? "bg-accent text-white" : "glass-chip text-white"
+            }`}
+            style={{ fontFamily: "var(--font-display)", borderRadius: "10px" }}
+          >
+            <Package className="w-4 h-4" /> Products
+          </button>
+        </div>
+
+        {tab === "products" && <AdminProducts token={token} />}
+
+        {tab === "orders" && (
+        <>
         {/* Stats */}
         {stats && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
@@ -226,6 +256,8 @@ export default function AdminDashboard() {
               </div>
             ))}
           </div>
+        )}
+        </>
         )}
       </div>
     </div>

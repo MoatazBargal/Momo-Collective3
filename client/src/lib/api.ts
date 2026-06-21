@@ -79,3 +79,58 @@ export type AdminStats = {
 export function fetchAdminStats(token: string) {
   return apiFetch<AdminStats>("/admin/stats", { headers: adminHeaders(token) });
 }
+
+/* ---------- Products (admin CRUD + public read) ---------- */
+export type ApiProduct = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  category: string;
+  basePrice: string;
+  compareAtPrice: string | null;
+  images: string[];
+  sizeGuide: string | null;
+  isActive: boolean;
+  createdAt: string;
+};
+
+export type ProductPayload = {
+  name: string;
+  slug: string;
+  description?: string;
+  category: "tees" | "denim" | "hoodies";
+  basePrice: number;
+  compareAtPrice?: number;
+  images: string[];
+  sizeGuide?: string;
+  isActive?: boolean;
+};
+
+/** Public list (active products). Pass all=true (admin) to include inactive. */
+export function fetchProducts(all = false) {
+  return apiFetch<{ products: ApiProduct[] }>(`/products${all ? "?all=1" : ""}`);
+}
+
+export function createProduct(token: string, payload: ProductPayload) {
+  return apiFetch<{ product: ApiProduct }>("/products", {
+    method: "POST",
+    headers: adminHeaders(token),
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateProduct(token: string, id: number, payload: Partial<ProductPayload>) {
+  return apiFetch<{ ok: boolean }>(`/products/${id}`, {
+    method: "PATCH",
+    headers: adminHeaders(token),
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteProduct(token: string, id: number) {
+  return apiFetch<{ ok: boolean }>(`/products/${id}`, {
+    method: "DELETE",
+    headers: adminHeaders(token),
+  });
+}
