@@ -1,37 +1,28 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Route, Switch } from "wouter";
-import { lazy, Suspense } from "react";
-import ErrorBoundary from "./components/ErrorBoundary";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import { CartProvider } from "./contexts/CartContext";
-import PageLayout from "./components/PageLayout";
-import LoadingScreen from "./components/LoadingScreen";
-
-// Eager: above-the-fold / most-visited routes
+import NotFound from "@/pages/NotFound";
 import Home from "@/pages/Home";
 import Shop from "@/pages/Shop";
-import NotFound from "@/pages/NotFound";
+import ProductDetail from "@/pages/ProductDetail";
+import About from "@/pages/About";
+import Contact from "@/pages/Contact";
+import Cart from "@/pages/Cart";
+import Checkout from "@/pages/Checkout";
+import Auth from "@/pages/Auth";
+import Profile from "@/pages/Profile";
+import Wishlist from "@/pages/Wishlist";
+import AdminDashboard from "@/pages/AdminDashboard";
+import { Route, Switch } from "wouter";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import PageLayout from "./components/PageLayout";
 
-// Lazy: heavier or less-frequent routes (code-split into separate chunks)
-const ProductDetail = lazy(() => import("@/pages/ProductDetail"));
-const About = lazy(() => import("@/pages/About"));
-const Contact = lazy(() => import("@/pages/Contact"));
-const Cart = lazy(() => import("@/pages/Cart"));
-const Checkout = lazy(() => import("@/pages/Checkout"));
-const Auth = lazy(() => import("@/pages/Auth"));
-const Profile = lazy(() => import("@/pages/Profile"));
-const Wishlist = lazy(() => import("@/pages/Wishlist"));
-const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
-
-// Lightweight loading fallback
-function RouteLoader() {
-  return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
-}
+/** Pages that use their own full-screen layout (no navbar/footer from PageLayout) */
+const AuthPage = () => (
+  <div className="min-h-screen">
+    <Auth />
+  </div>
+);
 
 function Router() {
   return (
@@ -49,67 +40,45 @@ function Router() {
       <Route path="/product/:slug">
         {(params) => (
           <PageLayout>
-            <Suspense fallback={<RouteLoader />}>
-              <ProductDetail params={params} />
-            </Suspense>
+            <ProductDetail params={params} />
           </PageLayout>
         )}
       </Route>
       <Route path="/about">
         <PageLayout>
-          <Suspense fallback={<RouteLoader />}>
-            <About />
-          </Suspense>
+          <About />
         </PageLayout>
       </Route>
       <Route path="/contact">
         <PageLayout>
-          <Suspense fallback={<RouteLoader />}>
-            <Contact />
-          </Suspense>
+          <Contact />
         </PageLayout>
       </Route>
       <Route path="/cart">
         <PageLayout>
-          <Suspense fallback={<RouteLoader />}>
-            <Cart />
-          </Suspense>
+          <Cart />
         </PageLayout>
       </Route>
       <Route path="/checkout">
         <PageLayout>
-          <Suspense fallback={<RouteLoader />}>
-            <Checkout />
-          </Suspense>
+          <Checkout />
         </PageLayout>
       </Route>
       <Route path="/wishlist">
         <PageLayout>
-          <Suspense fallback={<RouteLoader />}>
-            <Wishlist />
-          </Suspense>
+          <Wishlist />
         </PageLayout>
       </Route>
       <Route path="/profile">
         <PageLayout>
-          <Suspense fallback={<RouteLoader />}>
-            <Profile />
-          </Suspense>
+          <Profile />
         </PageLayout>
       </Route>
-      <Route path="/auth">
-        <div className="min-h-screen">
-          <Suspense fallback={<RouteLoader />}>
-            <Auth />
-          </Suspense>
-        </div>
-      </Route>
-      <Route path="/admin">
-        <Suspense fallback={<RouteLoader />}>
-          <AdminDashboard />
-        </Suspense>
-      </Route>
+      <Route path="/auth" component={AuthPage} />
+      {/* Admin: no public footer, standalone layout */}
+      <Route path="/admin" component={AdminDashboard} />
       <Route path="/404" component={NotFound} />
+      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
@@ -119,13 +88,10 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
-        <CartProvider>
-          <TooltipProvider>
-            <LoadingScreen />
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </CartProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

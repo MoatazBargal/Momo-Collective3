@@ -3,17 +3,17 @@ import { Link } from "wouter";
 
 export default function About() {
   return (
-    <div style={{ backgroundColor: "var(--momo-bg)" }}>
+    <div className="bg-white dark:bg-slate-950">
       {/* Header */}
-      <section className="section-padding-sm border-b border-momo">
+      <section className="section-padding-sm border-b border-border">
         <div className="container">
           <h1 className="heading-section mb-2">About Momo Collective</h1>
-          <p className="text-dim">Built for culture. Driven by individuality.</p>
+          <p className="text-muted-foreground">Built for culture. Driven by individuality.</p>
         </div>
       </section>
 
       {/* Main Story */}
-      <section className="section-padding container glow-field overflow-hidden">
+      <section className="section-padding container">
         <div className="max-w-3xl">
           <h2 className="heading-subsection mb-6">Our Mission</h2>
           <div className="space-y-4 text-lg leading-relaxed mb-12">
@@ -38,28 +38,28 @@ export default function About() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             <div>
               <h3 className="font-bold text-xl mb-3">Authenticity</h3>
-              <p className="text-dim">
+              <p className="text-muted-foreground">
                 We don't follow trends—we set them. Our pieces are born from genuine street
                 culture, not boardroom meetings.
               </p>
             </div>
             <div>
               <h3 className="font-bold text-xl mb-3">Quality</h3>
-              <p className="text-dim">
+              <p className="text-muted-foreground">
                 Premium materials, meticulous craftsmanship. Every stitch matters. Every piece
                 is built to last.
               </p>
             </div>
             <div>
               <h3 className="font-bold text-xl mb-3">Individuality</h3>
-              <p className="text-dim">
+              <p className="text-muted-foreground">
                 Your style is your identity. We create pieces that let you express who you
                 are without compromise.
               </p>
             </div>
             <div>
               <h3 className="font-bold text-xl mb-3">Accessibility</h3>
-              <p className="text-dim">
+              <p className="text-muted-foreground">
                 Premium doesn't mean exclusive. We believe in quality streetwear that's
                 within reach.
               </p>
@@ -73,7 +73,7 @@ export default function About() {
             hoodies—every item is a statement.
           </p>
 
-          <div className="glass p-8 mb-12" style={{ borderRadius: "16px" }}>
+          <div className="bg-muted/50 p-8 rounded-lg mb-12">
             <h3 className="font-bold text-xl mb-4">Why Choose Momo Collective?</h3>
             <ul className="space-y-3 text-lg">
               <li className="flex items-start gap-3">

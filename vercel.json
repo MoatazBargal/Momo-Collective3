@@ -1,11 +1,8 @@
 {
   "buildCommand": "pnpm install && pnpm vite build",
   "outputDirectory": "dist/public",
-  "functions": {
-    "api/**/*.ts": { "runtime": "@vercel/node@5.1.0" }
-  },
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
@@ -13,6 +10,7 @@
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     },
@@ -20,6 +18,12 @@
       "source": "/assets/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*\\.webp|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.svg|.*\\.ico)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
       ]
     }
   ]

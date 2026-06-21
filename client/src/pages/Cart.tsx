@@ -1,26 +1,53 @@
-import { Link } from "wouter";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
-import { CURRENCY_SYMBOL } from "@shared/const";
-import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 
-const SHIPPING_FLAT = 50;
-const FREE_SHIPPING_OVER = 2000;
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  size: string;
+  color: string;
+}
+
+const MOCK_CART_ITEMS: CartItem[] = [
+  { id: 1, name: "Oversized T-Shirt", price: 650, quantity: 2, size: "L", color: "Black" },
+  { id: 2, name: "Wide-Leg Denim", price: 1100, quantity: 1, size: "32", color: "Indigo" },
+];
 
 export default function Cart() {
-  const { items, subtotal, updateQuantity, removeItem } = useCart();
+  const [items, setItems] = useState<CartItem[]>(MOCK_CART_ITEMS);
 
-  const shipping = subtotal === 0 ? 0 : subtotal >= FREE_SHIPPING_OVER ? 0 : SHIPPING_FLAT;
+  const updateQuantity = (id: number, quantity: number) => {
+    if (quantity <= 0) {
+      removeItem(id);
+      return;
+    }
+    setItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+    );
+  };
+
+  const removeItem = (id: number) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+    toast.success("Item removed from cart");
+  };
+
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shipping = subtotal > 0 ? 50 : 0;
   const total = subtotal + shipping;
 
   if (items.length === 0) {
     return (
-      <div style={{ backgroundColor: "var(--momo-bg)" }}>
+      <div className="bg-white">
         <div className="section-padding container">
           <h1 className="heading-section mb-8">Shopping Cart</h1>
           <div className="text-center py-20">
-            <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-dim" />
-            <p className="text-xl text-dim mb-8">Your cart is empty</p>
+            <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+            <p className="text-xl text-gray-600 mb-8">Your cart is empty</p>
             <Link href="/shop">
               <Button className="btn-primary">Continue Shopping</Button>
             </Link>
@@ -31,8 +58,8 @@ export default function Cart() {
   }
 
   return (
-    <div style={{ backgroundColor: "var(--momo-bg)" }}>
-      <div className="section-padding container glow-field overflow-hidden">
+    <div className="bg-white">
+      <div className="section-padding container">
         <h1 className="heading-section mb-8">Shopping Cart</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -40,43 +67,35 @@ export default function Cart() {
           <div className="lg:col-span-2 space-y-6">
             {items.map((item) => (
               <div
-                key={item.lineId}
-                className="flex gap-6 p-6 glass glass-hover"
-                style={{ borderRadius: "14px" }}
+                key={item.id}
+                className="flex gap-6 p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <div className="w-24 h-24 flex-shrink-0 overflow-hidden surface-2" style={{ borderRadius: "10px" }}>
-                  {item.image && (
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
-                  )}
-                </div>
+                <div className="w-24 h-24 flex-shrink-0 rounded-lg bg-gray-100"></div>
                 <div className="flex-1">
                   <h3 className="font-bold text-lg mb-1">{item.name}</h3>
-                  <p className="text-sm text-dim mb-3">
+                  <p className="text-sm text-gray-600 mb-3">
                     {item.color} • Size {item.size}
                   </p>
-                  <p className="text-2xl font-bold text-accent">{item.price} {CURRENCY_SYMBOL}</p>
+                  <p className="text-2xl font-bold text-orange-500">{item.price} LE</p>
                 </div>
                 <div className="flex flex-col items-end gap-4">
                   <button
-                    onClick={() => removeItem(item.lineId)}
-                    className="text-dim hover:text-red-500 transition-colors"
-                    aria-label="Remove item"
+                    onClick={() => removeItem(item.id)}
+                    className="text-gray-400 hover:text-red-500 transition-colors"
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>
-                  <div className="flex items-center border border-momo" style={{ borderRadius: "10px" }}>
+                  <div className="flex items-center border border-gray-200 rounded-lg">
                     <button
-                      onClick={() => updateQuantity(item.lineId, item.quantity - 1)}
-                      className="p-2 hover:surface-2"
-                      aria-label="Decrease quantity"
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      className="p-2 hover:bg-gray-100"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
                     <span className="px-4 py-2 font-semibold">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.lineId, item.quantity + 1)}
-                      className="p-2 hover:surface-2"
-                      aria-label="Increase quantity"
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="p-2 hover:bg-gray-100"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -88,30 +107,23 @@ export default function Cart() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="glass p-6 sticky top-20" style={{ borderRadius: "16px" }}>
+            <div className="bg-gray-50 p-6 rounded-lg sticky top-20">
               <h2 className="font-bold text-lg mb-6">Order Summary</h2>
 
-              <div className="space-y-4 mb-6 pb-6 border-b border-momo">
+              <div className="space-y-4 mb-6 pb-6 border-b border-gray-200">
                 <div className="flex justify-between">
-                  <span className="text-dim">Subtotal</span>
-                  <span className="font-semibold">{subtotal} {CURRENCY_SYMBOL}</span>
+                  <span className="text-gray-600">Subtotal</span>
+                  <span className="font-semibold">{subtotal} LE</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-dim">Shipping</span>
-                  <span className="font-semibold">
-                    {shipping === 0 ? "Free" : `${shipping} ${CURRENCY_SYMBOL}`}
-                  </span>
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="font-semibold">{shipping} LE</span>
                 </div>
-                {subtotal > 0 && subtotal < FREE_SHIPPING_OVER && (
-                  <p className="text-xs text-dim">
-                    Add {FREE_SHIPPING_OVER - subtotal} {CURRENCY_SYMBOL} more for free shipping
-                  </p>
-                )}
               </div>
 
               <div className="flex justify-between mb-8">
                 <span className="font-bold text-lg">Total</span>
-                <span className="font-bold text-2xl text-accent">{total} {CURRENCY_SYMBOL}</span>
+                <span className="font-bold text-2xl text-orange-500">{total} LE</span>
               </div>
 
               <Link href="/checkout">

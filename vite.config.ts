@@ -17,14 +17,5 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Split heavy UI libraries into a cacheable vendor chunk
-          "ui-vendor": ["lucide-react", "framer-motion", "sonner"],
-        },
-      },
-    },
-    chunkSizeWarningLimit: 600,
   },
 });

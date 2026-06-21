@@ -1,25 +1,21 @@
-import { MotionConfig } from "framer-motion";
-import AnnouncementBar from "./AnnouncementBar";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import PageTransition from "./motion/PageTransition";
 
 interface PageLayoutProps {
   children: React.ReactNode;
+  /** Pass true for pages that are full-bleed (Home hero, etc.) */
   noFooter?: boolean;
 }
 
 export default function PageLayout({ children, noFooter = false }: PageLayoutProps) {
   return (
-    <MotionConfig reducedMotion="user">
-      <div className="flex flex-col min-h-screen">
-        <AnnouncementBar />
-        <Navbar />
-        <main className="flex-1">
-          <PageTransition>{children}</PageTransition>
-        </main>
-        {!noFooter && <Footer />}
-      </div>
-    </MotionConfig>
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      {/* 64px offset for fixed navbar (h-16) */}
+      <main className="flex-1 pt-16">
+        {children}
+      </main>
+      {!noFooter && <Footer />}
+    </div>
   );
 }
