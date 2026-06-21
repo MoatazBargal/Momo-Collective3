@@ -92,7 +92,7 @@ export default function Footer() {
 
           <div>
             <h3 className="text-xs font-bold tracking-widest uppercase text-dim mb-4">Connect</h3>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+            <a href="https://instagram.com/momocollective" target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm text-white/80 hover:text-accent transition-colors">
               <Instagram className="w-4 h-4" /> Instagram
             </a>

@@ -3,6 +3,8 @@ import { Heart, Minus, Plus, Check } from "lucide-react";
 import { toast } from "sonner";
 import { SIZES, CURRENCY_SYMBOL } from "@shared/const";
 import ProductCard from "@/components/ProductCard";
+import ProductReviews from "@/components/ProductReviews";
+import SizeGuide from "@/components/SizeGuide";
 import { useCart } from "@/contexts/CartContext";
 import { useProduct } from "@/hooks/useProducts";
 
@@ -146,7 +148,8 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
                   </button>
                 ))}
               </div>
-              <p className="text-sm text-dim">{product.sizeGuide}</p>
+              {product.sizeGuide && <p className="text-sm text-dim mb-3">{product.sizeGuide}</p>}
+              <SizeGuide note={product.sizeGuide} />
             </div>
 
             {/* Quantity + Add */}
@@ -196,6 +199,9 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
           </section>
         )}
       </div>
+
+      {/* Reviews */}
+      <ProductReviews productId={product.id} />
     </div>
   );
 }

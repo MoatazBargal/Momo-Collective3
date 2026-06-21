@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Clock,
   Tag,
+  Star,
 } from "lucide-react";
 import {
   fetchAdminOrders,
@@ -20,6 +21,7 @@ import {
 } from "@/lib/api";
 import AdminProducts from "@/components/admin/AdminProducts";
 import AdminCoupons from "@/components/admin/AdminCoupons";
+import AdminReviews from "@/components/admin/AdminReviews";
 import AdminOrderDetailModal from "@/components/admin/AdminOrderDetailModal";
 const AdminOverview = lazy(() => import("@/components/admin/AdminOverview"));
 
@@ -45,7 +47,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [filter, setFilter] = useState("All");
-  const [tab, setTab] = useState<"overview" | "orders" | "products" | "coupons">("overview");
+  const [tab, setTab] = useState<"overview" | "orders" | "products" | "coupons" | "reviews">("overview");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const load = useCallback(
@@ -149,7 +151,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <span className="eyebrow block mb-1">Dashboard</span>
-            <h1 className="heading-section">{tab === "overview" ? "Overview" : tab === "orders" ? "Orders" : tab === "products" ? "Products" : "Coupons"}</h1>
+            <h1 className="heading-section">{tab === "overview" ? "Overview" : tab === "orders" ? "Orders" : tab === "products" ? "Products" : tab === "coupons" ? "Coupons" : "Reviews"}</h1>
           </div>
           <div className="flex gap-2">
             {tab === "orders" && (
@@ -201,6 +203,15 @@ export default function AdminDashboard() {
           >
             <Tag className="w-4 h-4" /> Coupons
           </button>
+          <button
+            onClick={() => setTab("reviews")}
+            className={`px-5 py-2.5 text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2 transition-colors ${
+              tab === "reviews" ? "bg-accent text-white" : "glass-chip text-white"
+            }`}
+            style={{ fontFamily: "var(--font-display)", borderRadius: "10px" }}
+          >
+            <Star className="w-4 h-4" /> Reviews
+          </button>
         </div>
 
         {tab === "overview" && (
@@ -212,6 +223,8 @@ export default function AdminDashboard() {
         {tab === "products" && <AdminProducts token={token} />}
 
         {tab === "coupons" && <AdminCoupons token={token} />}
+
+        {tab === "reviews" && <AdminReviews token={token} />}
 
         {tab === "orders" && (
         <>

@@ -1,9 +1,10 @@
 import { Link } from "wouter";
 import { ASSETS } from "@/assets";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Instagram } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/motion/Reveal";
 import { useProducts } from "@/hooks/useProducts";
+import { INSTAGRAM_POSTS, INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/data/instagram";
 
 export default function Home() {
   const { products } = useProducts();
@@ -131,6 +132,39 @@ export default function Home() {
               <button className="btn-outline-light mt-10">Learn More</button>
             </Link>
           </Reveal>
+        </div>
+      </section>
+
+      {/* ===== INSTAGRAM FEED ===== */}
+      <section className="section-padding container">
+        <div className="text-center mb-10">
+          <span className="eyebrow block mb-2">{INSTAGRAM_HANDLE}</span>
+          <h2 className="heading-section">Follow the Culture</h2>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+          {(INSTAGRAM_POSTS.length > 0
+            ? INSTAGRAM_POSTS.slice(0, 8)
+            : products
+                .slice(0, 4)
+                .flatMap((p) => p.images.slice(0, 1))
+                .concat(products.slice(0, 4).flatMap((p) => p.images.slice(0, 1)))
+                .slice(0, 8)
+                .map((img) => ({ image: img, link: INSTAGRAM_URL, caption: "" }))
+          ).map((post, i) => (
+            <a
+              key={i}
+              href={post.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative block overflow-hidden surface-2"
+              style={{ aspectRatio: "1/1", borderRadius: "12px" }}
+            >
+              <img src={post.image} alt={post.caption || ""} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                <Instagram className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </a>
+          ))}
         </div>
       </section>
 

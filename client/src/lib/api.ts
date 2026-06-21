@@ -278,3 +278,47 @@ export function deleteCoupon(token: string, id: number) {
     method: "DELETE", headers: adminHeaders(token),
   });
 }
+
+/* ---------- Reviews ---------- */
+export type Review = {
+  id: number;
+  productId: number;
+  authorName: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  status: string;
+  createdAt: string;
+};
+
+export function fetchReviews(productId: number) {
+  return apiFetch<{ reviews: Review[]; count: number; average: number }>(
+    `/reviews?productId=${productId}`
+  );
+}
+
+export function submitReview(input: {
+  productId: number; authorName: string; rating: number; title?: string; body?: string;
+}) {
+  return apiFetch<{ ok: boolean; message: string }>("/reviews", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export type AdminReview = Review & { productName: string | null };
+
+export function fetchAdminReviews(token: string, status?: string) {
+  const q = status && status !== "All" ? `?status=${encodeURIComponent(status)}` : "";
+  return apiFetch<{ reviews: AdminReview[] }>(`/admin/reviews${q}`, { headers: adminHeaders(token) });
+}
+export function moderateReview(token: string, id: number, status: "Approved" | "Rejected") {
+  return apiFetch<{ ok: boolean }>(`/admin/reviews/${id}`, {
+    method: "PATCH", headers: adminHeaders(token), body: JSON.stringify({ status }),
+  });
+}
+export function deleteReview(token: string, id: number) {
+  return apiFetch<{ ok: boolean }>(`/admin/reviews/${id}`, {
+    method: "DELETE", headers: adminHeaders(token),
+  });
+}
