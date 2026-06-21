@@ -177,3 +177,47 @@ export function createPaymentIntention(orderId: number) {
     body: JSON.stringify({ orderId }),
   });
 }
+
+/* ---------- Dashboard Overview ---------- */
+export type OverviewKpis = {
+  totalRevenue: string;
+  totalOrders: number;
+  ordersToday: number;
+  revenueToday: string;
+  avgOrderValue: string;
+  pendingOrders: number;
+  productsSold: number;
+  activeCustomers: number;
+  lowStockCount: number;
+};
+
+export type RevenuePoint = { date: string; revenue: number; orders: number };
+export type TopProduct = { productName: string; qty: number; revenue: string };
+export type LowStockItem = {
+  productName: string;
+  color: string;
+  size: string;
+  stock: number;
+  sku: string;
+};
+export type RecentOrder = {
+  id: number;
+  orderNumber: string;
+  firstName: string;
+  lastName: string;
+  total: string;
+  status: string;
+  createdAt: string;
+};
+
+export type AdminOverview = {
+  kpis: OverviewKpis;
+  revenueSeries: RevenuePoint[];
+  recentOrders: RecentOrder[];
+  topProducts: TopProduct[];
+  lowStock: LowStockItem[];
+};
+
+export function fetchAdminOverview(token: string) {
+  return apiFetch<AdminOverview>("/admin/overview", { headers: adminHeaders(token) });
+}

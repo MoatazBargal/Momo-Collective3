@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { eq, and } from "drizzle-orm";
 import { getDb, schema } from "../../server-lib/db.js";
 import { sendOrderEmail } from "../../server-lib/email.js";
 import { generateOrderNumber, applyCors } from "../../server-lib/utils.js";
@@ -26,6 +27,44 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const db = getDb();
+
+    // --- Stock check: resolve each item to a variant and ensure enough stock ---
+    // Items reference a product by slug + color + size. We look up the variant via
+    // the product, then its variant row.
+    const stockIssues: string[] = [];
+    const variantUpdates: { variantId: number; newStock: number }[] = [];
+
+    for (const it of input.items) {
+      if (!it.productSlug) continue; // can't check stock without a slug; allow (legacy)
+      const [product] = await db
+        .select({ id: schema.products.id })
+        .from(schema.products)
+        .where(eq(schema.products.slug, it.productSlug));
+      if (!product) continue; // product not in DB (static fallback item) — skip check
+
+      const [variant] = await db
+        .select({ id: schema.productVariants.id, stock: schema.productVariants.stock })
+        .from(schema.productVariants)
+        .where(
+          and(
+            eq(schema.productVariants.productId, product.id),
+            eq(schema.productVariants.color, it.color),
+            eq(schema.productVariants.size, it.size as typeof schema.productVariants.size.enumValues[number])
+          )
+        );
+
+      if (!variant) continue; // variant combo not tracked — skip
+      if (variant.stock < it.quantity) {
+        stockIssues.push(`${it.productName} (${it.color}/${it.size}) — only ${variant.stock} left`);
+      } else {
+        variantUpdates.push({ variantId: variant.id, newStock: variant.stock - it.quantity });
+      }
+    }
+
+    if (stockIssues.length > 0) {
+      res.status(409).json({ error: "Some items are out of stock", details: stockIssues });
+      return;
+    }
 
     // Insert order
     const [order] = await db
@@ -62,6 +101,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       subtotal: (it.pricePerUnit * it.quantity).toFixed(2),
     }));
     const insertedItems = await db.insert(schema.orderItems).values(itemRows).returning();
+
+    // Decrement stock for resolved variants
+    for (const u of variantUpdates) {
+      await db
+        .update(schema.productVariants)
+        .set({ stock: u.newStock, updatedAt: new Date() })
+        .where(eq(schema.productVariants.id, u.variantId));
+    }
 
     // Fire email (must not fail the order)
     try {

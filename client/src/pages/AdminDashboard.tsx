@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 import {
@@ -19,6 +19,7 @@ import {
 } from "@/lib/api";
 import AdminProducts from "@/components/admin/AdminProducts";
 import AdminOrderDetailModal from "@/components/admin/AdminOrderDetailModal";
+const AdminOverview = lazy(() => import("@/components/admin/AdminOverview"));
 
 const STATUSES = ["All", "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
 const NEXT_STATUS: Record<string, string[]> = {
@@ -42,7 +43,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [filter, setFilter] = useState("All");
-  const [tab, setTab] = useState<"orders" | "products">("orders");
+  const [tab, setTab] = useState<"overview" | "orders" | "products">("overview");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const load = useCallback(
@@ -146,7 +147,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <span className="eyebrow block mb-1">Dashboard</span>
-            <h1 className="heading-section">{tab === "orders" ? "Orders" : "Products"}</h1>
+            <h1 className="heading-section">{tab === "overview" ? "Overview" : tab === "orders" ? "Orders" : "Products"}</h1>
           </div>
           <div className="flex gap-2">
             {tab === "orders" && (
@@ -162,6 +163,15 @@ export default function AdminDashboard() {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8">
+          <button
+            onClick={() => setTab("overview")}
+            className={`px-5 py-2.5 text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2 transition-colors ${
+              tab === "overview" ? "bg-accent text-white" : "glass-chip text-white"
+            }`}
+            style={{ fontFamily: "var(--font-display)", borderRadius: "10px" }}
+          >
+            <BarChart3 className="w-4 h-4" /> Overview
+          </button>
           <button
             onClick={() => setTab("orders")}
             className={`px-5 py-2.5 text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2 transition-colors ${
@@ -181,6 +191,12 @@ export default function AdminDashboard() {
             <Package className="w-4 h-4" /> Products
           </button>
         </div>
+
+        {tab === "overview" && (
+          <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" /></div>}>
+            <AdminOverview token={token} onOpenOrder={setSelectedOrderId} />
+          </Suspense>
+        )}
 
         {tab === "products" && <AdminProducts token={token} />}
 
