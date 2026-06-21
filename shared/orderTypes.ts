@@ -25,6 +25,7 @@ export const createOrderSchema = z.object({
     country: z.string().max(100).default("Egypt"),
   }),
   notes: z.string().max(1000).optional(),
+  couponCode: z.string().max(50).optional(),
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;

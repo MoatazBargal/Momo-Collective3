@@ -91,6 +91,8 @@ export const orders = pgTable("orders", {
   status: orderStatusEnum("status").default("Pending").notNull(),
   subtotal: numeric("subtotal", { precision: 10, scale: 2 }).notNull(),
   shippingCost: numeric("shipping_cost", { precision: 10, scale: 2 }).default("0").notNull(),
+  discount: numeric("discount", { precision: 10, scale: 2 }).default("0").notNull(),
+  couponCode: varchar("coupon_code", { length: 50 }),
   total: numeric("total", { precision: 10, scale: 2 }).notNull(),
   paymentMethod: paymentMethodEnum("payment_method").default("COD").notNull(),
   paymentStatus: paymentStatusEnum("payment_status").default("Unpaid").notNull(),
@@ -130,3 +132,42 @@ export const orderItems = pgTable("order_items", {
 
 export type OrderItem = typeof orderItems.$inferSelect;
 export type InsertOrderItem = typeof orderItems.$inferInsert;
+
+/* ---------- Coupons ---------- */
+export const discountTypeEnum = pgEnum("discount_type", ["percentage", "fixed"]);
+
+export const coupons = pgTable("coupons", {
+  id: serial("id").primaryKey(),
+  code: varchar("code", { length: 50 }).notNull().unique(),
+  discountType: discountTypeEnum("discount_type").notNull(),
+  // percentage: 0-100 ; fixed: amount in EGP
+  value: numeric("value", { precision: 10, scale: 2 }).notNull(),
+  // optional minimum subtotal to qualify
+  minSubtotal: numeric("min_subtotal", { precision: 10, scale: 2 }),
+  // optional cap on how many times it can be used (null = unlimited)
+  usageLimit: integer("usage_limit"),
+  usageCount: integer("usage_count").default(0).notNull(),
+  expiresAt: timestamp("expires_at"),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Coupon = typeof coupons.$inferSelect;
+export type InsertCoupon = typeof coupons.$inferInsert;
+
+/* ---------- Reviews ---------- */
+export const reviewStatusEnum = pgEnum("review_status", ["Pending", "Approved", "Rejected"]);
+
+export const reviews = pgTable("reviews", {
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").notNull(),
+  authorName: varchar("author_name", { length: 100 }).notNull(),
+  rating: integer("rating").notNull(), // 1-5
+  title: varchar("title", { length: 200 }),
+  body: text("body"),
+  status: reviewStatusEnum("status").default("Pending").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Review = typeof reviews.$inferSelect;
+export type InsertReview = typeof reviews.$inferInsert;

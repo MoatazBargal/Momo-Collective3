@@ -221,3 +221,60 @@ export type AdminOverview = {
 export function fetchAdminOverview(token: string) {
   return apiFetch<AdminOverview>("/admin/overview", { headers: adminHeaders(token) });
 }
+
+/* ---------- Coupons ---------- */
+export type AppliedCoupon = {
+  code: string;
+  discountType: "percentage" | "fixed";
+  value: number;
+  discountAmount: number;
+};
+
+export function validateCoupon(code: string, subtotal: number) {
+  return apiFetch<AppliedCoupon>("/coupons/validate", {
+    method: "POST",
+    body: JSON.stringify({ code, subtotal }),
+  });
+}
+
+export type AdminCoupon = {
+  id: number;
+  code: string;
+  discountType: "percentage" | "fixed";
+  value: string;
+  minSubtotal: string | null;
+  usageLimit: number | null;
+  usageCount: number;
+  expiresAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+};
+
+export type CouponPayload = {
+  code: string;
+  discountType: "percentage" | "fixed";
+  value: number;
+  minSubtotal?: number;
+  usageLimit?: number;
+  expiresAt?: string;
+  isActive?: boolean;
+};
+
+export function fetchCoupons(token: string) {
+  return apiFetch<{ coupons: AdminCoupon[] }>("/admin/coupons", { headers: adminHeaders(token) });
+}
+export function createCoupon(token: string, payload: CouponPayload) {
+  return apiFetch<{ coupon: AdminCoupon }>("/admin/coupons", {
+    method: "POST", headers: adminHeaders(token), body: JSON.stringify(payload),
+  });
+}
+export function updateCoupon(token: string, id: number, payload: Partial<CouponPayload>) {
+  return apiFetch<{ ok: boolean }>(`/admin/coupons/${id}`, {
+    method: "PATCH", headers: adminHeaders(token), body: JSON.stringify(payload),
+  });
+}
+export function deleteCoupon(token: string, id: number) {
+  return apiFetch<{ ok: boolean }>(`/admin/coupons/${id}`, {
+    method: "DELETE", headers: adminHeaders(token),
+  });
+}

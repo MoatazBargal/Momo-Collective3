@@ -9,6 +9,7 @@ import {
   RefreshCw,
   TrendingUp,
   Clock,
+  Tag,
 } from "lucide-react";
 import {
   fetchAdminOrders,
@@ -18,6 +19,7 @@ import {
   type AdminStats,
 } from "@/lib/api";
 import AdminProducts from "@/components/admin/AdminProducts";
+import AdminCoupons from "@/components/admin/AdminCoupons";
 import AdminOrderDetailModal from "@/components/admin/AdminOrderDetailModal";
 const AdminOverview = lazy(() => import("@/components/admin/AdminOverview"));
 
@@ -43,7 +45,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [filter, setFilter] = useState("All");
-  const [tab, setTab] = useState<"overview" | "orders" | "products">("overview");
+  const [tab, setTab] = useState<"overview" | "orders" | "products" | "coupons">("overview");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const load = useCallback(
@@ -147,7 +149,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <span className="eyebrow block mb-1">Dashboard</span>
-            <h1 className="heading-section">{tab === "overview" ? "Overview" : tab === "orders" ? "Orders" : "Products"}</h1>
+            <h1 className="heading-section">{tab === "overview" ? "Overview" : tab === "orders" ? "Orders" : tab === "products" ? "Products" : "Coupons"}</h1>
           </div>
           <div className="flex gap-2">
             {tab === "orders" && (
@@ -190,6 +192,15 @@ export default function AdminDashboard() {
           >
             <Package className="w-4 h-4" /> Products
           </button>
+          <button
+            onClick={() => setTab("coupons")}
+            className={`px-5 py-2.5 text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2 transition-colors ${
+              tab === "coupons" ? "bg-accent text-white" : "glass-chip text-white"
+            }`}
+            style={{ fontFamily: "var(--font-display)", borderRadius: "10px" }}
+          >
+            <Tag className="w-4 h-4" /> Coupons
+          </button>
         </div>
 
         {tab === "overview" && (
@@ -199,6 +210,8 @@ export default function AdminDashboard() {
         )}
 
         {tab === "products" && <AdminProducts token={token} />}
+
+        {tab === "coupons" && <AdminCoupons token={token} />}
 
         {tab === "orders" && (
         <>

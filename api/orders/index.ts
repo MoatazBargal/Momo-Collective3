@@ -1,9 +1,10 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { getDb, schema } from "../../server-lib/db.js";
 import { sendOrderEmail } from "../../server-lib/email.js";
 import { generateOrderNumber, applyCors } from "../../server-lib/utils.js";
 import { createOrderSchema, computeTotals } from "../../shared/orderTypes.js";
+import { computeDiscount } from "../../shared/couponTypes.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (applyCors(req, res)) return;
@@ -22,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const input = parsed.data;
 
   // Server-side total computation (never trust client totals)
-  const { subtotal, shippingCost, total } = computeTotals(input.items);
+  const { subtotal, shippingCost } = computeTotals(input.items);
   const orderNumber = generateOrderNumber();
 
   try {
@@ -66,6 +67,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
+    // --- Coupon: validate server-side and compute discount ---
+    let discount = 0;
+    let appliedCouponCode: string | null = null;
+    let couponRowId: number | null = null;
+    if (input.couponCode) {
+      const code = input.couponCode.trim().toUpperCase();
+      const [coupon] = await db.select().from(schema.coupons).where(eq(schema.coupons.code, code));
+      const now = new Date();
+      const valid =
+        coupon &&
+        coupon.isActive &&
+        (!coupon.expiresAt || new Date(coupon.expiresAt) >= now) &&
+        (coupon.usageLimit === null || coupon.usageCount < coupon.usageLimit) &&
+        (coupon.minSubtotal === null || subtotal >= Number(coupon.minSubtotal));
+      if (valid) {
+        discount = computeDiscount(coupon.discountType, Number(coupon.value), subtotal);
+        appliedCouponCode = coupon.code;
+        couponRowId = coupon.id;
+      }
+      // Invalid coupons are silently ignored (order proceeds at full price)
+    }
+
+    const total = Math.max(0, subtotal + shippingCost - discount);
+
     // Insert order
     const [order] = await db
       .insert(schema.orders)
@@ -74,6 +99,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         status: "Pending",
         subtotal: subtotal.toFixed(2),
         shippingCost: shippingCost.toFixed(2),
+        discount: discount.toFixed(2),
+        couponCode: appliedCouponCode,
         total: total.toFixed(2),
         paymentMethod: input.paymentMethod,
         paymentStatus: "Unpaid",
@@ -108,6 +135,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .update(schema.productVariants)
         .set({ stock: u.newStock, updatedAt: new Date() })
         .where(eq(schema.productVariants.id, u.variantId));
+    }
+
+    // Bump coupon usage if one was applied
+    if (couponRowId !== null) {
+      await db
+        .update(schema.coupons)
+        .set({ usageCount: sql`${schema.coupons.usageCount} + 1` })
+        .where(eq(schema.coupons.id, couponRowId));
     }
 
     // Fire email (must not fail the order)

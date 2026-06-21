@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import { Check, CreditCard, Banknote } from "lucide-react";
 import { toast } from "sonner";
-import { createOrder, createPaymentIntention } from "@/lib/api";
+import { createOrder, createPaymentIntention, validateCoupon, type AppliedCoupon } from "@/lib/api";
 import { useCart } from "@/contexts/CartContext";
 
 type PaymentMethod = "online" | "cod";
@@ -24,6 +24,9 @@ export default function Checkout() {
     postalCode: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -33,7 +36,29 @@ export default function Checkout() {
   // Live totals from the real cart
   const subtotal = cartItems.reduce((sum, it) => sum + it.price * it.quantity, 0);
   const shipping = subtotal === 0 ? 0 : subtotal >= 2000 ? 0 : 50;
-  const total = subtotal + shipping;
+  const discount = coupon ? coupon.discountAmount : 0;
+  const total = Math.max(0, subtotal + shipping - discount);
+
+  const handleApplyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponLoading(true);
+    try {
+      const applied = await validateCoupon(code, subtotal);
+      setCoupon(applied);
+      toast.success(`Coupon ${applied.code} applied — ${applied.discountAmount.toLocaleString()} LE off`);
+    } catch (err) {
+      setCoupon(null);
+      toast.error(err instanceof Error ? err.message : "Invalid coupon");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setCoupon(null);
+    setCouponInput("");
+  };
 
   const handleShippingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +101,7 @@ export default function Checkout() {
           postalCode: formData.postalCode || undefined,
           country: "Egypt",
         },
+        couponCode: coupon?.code,
       });
 
       if (paymentMethod === "online") {
@@ -341,6 +367,39 @@ export default function Checkout() {
 
               <div className="glass p-6 mb-6" style={{ borderRadius: "16px" }}>
                 <h3 className="font-bold mb-4">Order Summary</h3>
+
+                {/* Coupon field */}
+                <div className="mb-4 pb-4 border-b border-momo">
+                  {coupon ? (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">
+                        <span className="text-accent font-bold">{coupon.code}</span> applied
+                      </span>
+                      <button onClick={handleRemoveCoupon} className="text-dim hover:text-red-400 text-xs underline">
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                        placeholder="Discount code"
+                        className="flex-1 bg-transparent border border-momo text-white px-3 py-2 text-sm placeholder:text-dim focus:outline-none focus:border-accent"
+                        style={{ borderRadius: "8px" }}
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        disabled={couponLoading || !couponInput.trim()}
+                        className="px-4 py-2 text-xs font-bold uppercase tracking-wide bg-white/10 hover:bg-white/20 text-white disabled:opacity-50 transition-colors"
+                        style={{ borderRadius: "8px" }}
+                      >
+                        {couponLoading ? "..." : "Apply"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-2 mb-4 pb-4 border-b border-momo">
                   <div className="flex justify-between">
                     <span className="text-dim">Subtotal</span>
@@ -350,6 +409,12 @@ export default function Checkout() {
                     <span className="text-dim">Shipping</span>
                     <span>{shipping === 0 ? "Free" : `${shipping} LE`}</span>
                   </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-accent">
+                      <span>Discount</span>
+                      <span>−{discount.toLocaleString()} LE</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex justify-between">
                   <span className="font-bold">Total</span>
