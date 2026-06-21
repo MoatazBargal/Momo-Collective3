@@ -48,13 +48,13 @@ const MOCK_ADDRESSES: Address[] = [
 const getStatusColor = (status: string) => {
   switch (status) {
     case "delivered":
-      return "text-green-600 bg-green-50";
+      return "text-accent surface";
     case "shipped":
-      return "text-blue-600 bg-blue-50";
+      return "text-white surface";
     case "pending":
-      return "text-orange-600 bg-orange-50";
+      return "text-accent surface";
     default:
-      return "text-gray-600 bg-gray-50";
+      return "text-dim surface";
   }
 };
 
@@ -66,13 +66,13 @@ export default function Profile() {
   };
 
   return (
-    <div className="bg-white">
-      <div className="section-padding container max-w-4xl">
+    <div style={{ backgroundColor: "var(--momo-bg)" }}>
+      <div className="section-padding container max-w-4xl glow-field overflow-hidden">
         {/* Header */}
         <div className="flex justify-between items-center mb-12">
           <div>
             <h1 className="heading-section mb-2">My Account</h1>
-            <p className="text-gray-600">ahmed@example.com</p>
+            <p className="text-dim">ahmed@example.com</p>
           </div>
           <Button onClick={handleLogout} variant="outline">
             <LogOut className="w-4 h-4 mr-2" />
@@ -81,13 +81,13 @@ export default function Profile() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-8 mb-8 border-b border-gray-200">
+        <div className="flex gap-8 mb-8 border-b border-momo">
           <button
             onClick={() => setTab("orders")}
             className={`pb-4 font-semibold transition-colors ${
               tab === "orders"
-                ? "text-orange-500 border-b-2 border-orange-500"
-                : "text-gray-600 hover:text-black"
+                ? "text-accent border-b-2 border-accent"
+                : "text-dim hover:text-white"
             }`}
           >
             <Package className="w-4 h-4 inline mr-2" />
@@ -97,8 +97,8 @@ export default function Profile() {
             onClick={() => setTab("addresses")}
             className={`pb-4 font-semibold transition-colors ${
               tab === "addresses"
-                ? "text-orange-500 border-b-2 border-orange-500"
-                : "text-gray-600 hover:text-black"
+                ? "text-accent border-b-2 border-accent"
+                : "text-dim hover:text-white"
             }`}
           >
             <MapPin className="w-4 h-4 inline mr-2" />
@@ -111,8 +111,8 @@ export default function Profile() {
           <div className="space-y-4">
             {MOCK_ORDERS.length === 0 ? (
               <div className="text-center py-12">
-                <Package className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-600 mb-4">No orders yet</p>
+                <Package className="w-12 h-12 mx-auto text-dim mb-4" />
+                <p className="text-dim mb-4">No orders yet</p>
                 <Link href="/shop">
                   <Button className="btn-primary">Start Shopping</Button>
                 </Link>
@@ -121,12 +121,12 @@ export default function Profile() {
               MOCK_ORDERS.map((order) => (
                 <div
                   key={order.id}
-                  className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="p-6 glass glass-hover" style={{ borderRadius: "14px" }}
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="font-bold text-lg">{order.id}</h3>
-                      <p className="text-sm text-gray-600">{order.date}</p>
+                      <p className="text-sm text-dim">{order.date}</p>
                     </div>
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
@@ -137,9 +137,9 @@ export default function Profile() {
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <p className="text-gray-600">{order.items} items</p>
+                    <p className="text-dim">{order.items} items</p>
                     <div className="flex items-center gap-4">
-                      <p className="text-xl font-bold text-orange-500">{order.total} LE</p>
+                      <p className="text-xl font-bold text-accent">{order.total} LE</p>
                       <Button variant="outline" size="sm">
                         View Details
                       </Button>
@@ -157,15 +157,16 @@ export default function Profile() {
             {MOCK_ADDRESSES.map((address) => (
               <div
                 key={address.id}
-                className={`p-6 border-2 rounded-lg transition-colors ${
-                  address.isDefault ? "border-orange-500 bg-orange-50" : "border-gray-200"
+                className={`p-6 transition-colors ${
+                  address.isDefault ? "glass-accent" : "glass glass-hover"
                 }`}
+                style={{ borderRadius: "14px" }}
               >
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-bold text-lg">{address.name}</h3>
                     {address.isDefault && (
-                      <span className="inline-block mt-2 px-2 py-1 bg-orange-500 text-white text-xs font-semibold rounded">
+                      <span className="inline-block mt-2 px-2 py-1 bg-accent text-white text-xs font-semibold rounded">
                         Default
                       </span>
                     )}
@@ -174,9 +175,9 @@ export default function Profile() {
                     <Edit2 className="w-4 h-4" />
                   </Button>
                 </div>
-                <p className="text-gray-700 mb-2">{address.address}</p>
-                <p className="text-gray-700 mb-2">{address.city}</p>
-                <p className="text-gray-600">{address.phone}</p>
+                <p className="text-white/80 mb-2">{address.address}</p>
+                <p className="text-white/80 mb-2">{address.city}</p>
+                <p className="text-dim">{address.phone}</p>
               </div>
             ))}
 

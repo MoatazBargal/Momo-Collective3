@@ -28,7 +28,7 @@ export default function Contact() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("Message sent! We'll get back to you soon.");
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
-    } catch (error) {
+    } catch {
       toast.error("Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -36,17 +36,17 @@ export default function Contact() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-950">
+    <div style={{ backgroundColor: "var(--momo-bg)" }}>
       {/* Header */}
-      <section className="section-padding-sm border-b border-border">
+      <section className="section-padding-sm border-b border-momo">
         <div className="container">
           <h1 className="heading-section mb-2">Contact Us</h1>
-          <p className="text-muted-foreground">We'd love to hear from you</p>
+          <p className="text-dim">We'd love to hear from you</p>
         </div>
       </section>
 
       {/* Content */}
-      <section className="section-padding container">
+      <section className="section-padding container glow-field overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Info */}
           <div>
@@ -56,7 +56,7 @@ export default function Contact() {
                 <Mail className="w-6 h-6 text-accent flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="font-bold mb-1">Email</h3>
-                  <p className="text-muted-foreground">hello@momocollective.com</p>
+                  <p className="text-dim">hello@momocollective.com</p>
                 </div>
               </div>
 
@@ -64,7 +64,7 @@ export default function Contact() {
                 <Phone className="w-6 h-6 text-accent flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="font-bold mb-1">Phone</h3>
-                  <p className="text-muted-foreground">+20 (123) 456-7890</p>
+                  <p className="text-dim">+20 (123) 456-7890</p>
                 </div>
               </div>
 
@@ -72,13 +72,13 @@ export default function Contact() {
                 <MapPin className="w-6 h-6 text-accent flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="font-bold mb-1">Location</h3>
-                  <p className="text-muted-foreground">Cairo, Egypt</p>
+                  <p className="text-dim">Cairo, Egypt</p>
                 </div>
               </div>
 
-              <div className="bg-muted/50 p-6 rounded-lg mt-8">
+              <div className="glass p-6 mt-8" style={{ borderRadius: "16px" }}>
                 <h3 className="font-bold mb-3">Response Time</h3>
-                <p className="text-muted-foreground">
+                <p className="text-dim">
                   We typically respond to all inquiries within 24 hours during business days.
                 </p>
               </div>
@@ -143,7 +143,7 @@ export default function Contact() {
                   onChange={handleChange}
                   placeholder="Tell us more..."
                   rows={6}
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-white dark:bg-slate-950 text-black dark:text-white placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="w-full px-4 py-3 border border-momo bg-transparent text-white placeholder:text-dim focus:outline-none focus:border-accent" style={{ borderRadius: 0 }}
                   required
                 />
               </div>

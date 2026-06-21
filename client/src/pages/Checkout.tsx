@@ -2,11 +2,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { Check } from "lucide-react";
+import { Check, CreditCard, Banknote } from "lucide-react";
 import { toast } from "sonner";
+import { createOrder, createPaymentIntention, validateCoupon, type AppliedCoupon } from "@/lib/api";
+import { useCart } from "@/contexts/CartContext";
+
+type PaymentMethod = "online" | "cod";
 
 export default function Checkout() {
+  const { items: cartItems, clearCart } = useCart();
   const [step, setStep] = useState<"shipping" | "payment" | "confirmation">("shipping");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
+  const [orderNumber, setOrderNumber] = useState<string>("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -17,10 +24,40 @@ export default function Checkout() {
     postalCode: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Live totals from the real cart
+  const subtotal = cartItems.reduce((sum, it) => sum + it.price * it.quantity, 0);
+  const shipping = subtotal === 0 ? 0 : subtotal >= 2000 ? 0 : 50;
+  const discount = coupon ? coupon.discountAmount : 0;
+  const total = Math.max(0, subtotal + shipping - discount);
+
+  const handleApplyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponLoading(true);
+    try {
+      const applied = await validateCoupon(code, subtotal);
+      setCoupon(applied);
+      toast.success(`Coupon ${applied.code} applied — ${applied.discountAmount.toLocaleString()} LE off`);
+    } catch (err) {
+      setCoupon(null);
+      toast.error(err instanceof Error ? err.message : "Invalid coupon");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setCoupon(null);
+    setCouponInput("");
   };
 
   const handleShippingSubmit = (e: React.FormEvent) => {
@@ -34,14 +71,65 @@ export default function Checkout() {
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (cartItems.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Real cart contents from the shared cart context
+      const items = cartItems.map((it) => ({
+        productName: it.name,
+        productSlug: it.productSlug,
+        color: it.color,
+        size: it.size,
+        quantity: it.quantity,
+        pricePerUnit: it.price,
+      }));
+
+      const result = await createOrder({
+        items,
+        paymentMethod: paymentMethod === "cod" ? "COD" : "Online",
+        shipping: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          postalCode: formData.postalCode || undefined,
+          country: "Egypt",
+        },
+        couponCode: coupon?.code,
+      });
+
+      if (paymentMethod === "online") {
+        // Create a Paymob intention and open the hosted checkout.
+        // The order stays "Unpaid" until Paymob's webhook confirms payment.
+        try {
+          const { clientSecret, publicKey } = await createPaymentIntention(result.orderId);
+          setOrderNumber(result.orderNumber);
+          // Redirect to Paymob's unified checkout
+          const url = `https://accept.paymob.com/unifiedcheckout/?publicKey=${encodeURIComponent(publicKey)}&clientSecret=${encodeURIComponent(clientSecret)}`;
+          window.location.href = url;
+          return;
+        } catch (payErr) {
+          toast.error(
+            payErr instanceof Error ? payErr.message : "Could not start online payment. Try Cash on Delivery."
+          );
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // COD path
+      setOrderNumber(result.orderNumber);
+      clearCart();
       setStep("confirmation");
-      toast.success("Order placed successfully!");
-    } catch (error) {
-      toast.error("Failed to place order. Please try again.");
+      toast.success(`Order ${result.orderNumber} placed!`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to place order. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -54,39 +142,41 @@ export default function Checkout() {
 
   if (currentStep === "confirmation") {
     return (
-      <div className="bg-white">
-        <div className="section-padding container max-w-2xl">
+      <div style={{ backgroundColor: "var(--momo-bg)" }}>
+        <div className="section-padding container max-w-2xl glow-field overflow-hidden">
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 bg-accent text-white rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="w-8 h-8" />
             </div>
             <h1 className="heading-section mb-4">Order Confirmed!</h1>
-            <p className="text-lg text-gray-600 mb-2">Thank you for your purchase.</p>
-            <p className="text-gray-600 mb-8">
+            <p className="text-lg text-dim mb-2">Thank you for your purchase.</p>
+            <p className="text-dim mb-8">
               Your order has been placed and will be delivered soon. We'll contact you at{" "}
               <strong>{formData.phone}</strong> with delivery details.
             </p>
 
-            <div className="bg-gray-50 p-6 rounded-lg mb-8 text-left">
+            <div className="glass p-6 mb-8 text-left" style={{ borderRadius: "16px" }}>
               <h2 className="font-bold mb-4">Order Details</h2>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Order ID:</span>
-                  <span className="font-semibold">#ORD-2026-001234</span>
+                  <span className="text-dim">Order ID:</span>
+                  <span className="font-semibold">{orderNumber || "—"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Delivery to:</span>
+                  <span className="text-dim">Delivery to:</span>
                   <span className="font-semibold">
                     {formData.address}, {formData.city}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Estimated Delivery:</span>
+                  <span className="text-dim">Estimated Delivery:</span>
                   <span className="font-semibold">3-5 business days</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Payment Method:</span>
-                  <span className="font-semibold">Cash on Delivery</span>
+                  <span className="text-dim">Payment Method:</span>
+                  <span className="font-semibold">
+                    {paymentMethod === "online" ? "Paid Online" : "Cash on Delivery"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -101,27 +191,27 @@ export default function Checkout() {
   }
 
   return (
-    <div className="bg-white">
-      <div className="section-padding container max-w-2xl">
+    <div style={{ backgroundColor: "var(--momo-bg)" }}>
+      <div className="section-padding container max-w-2xl glow-field overflow-hidden">
         <h1 className="heading-section mb-8">Checkout</h1>
 
         {/* Progress Indicator */}
         <div className="flex gap-4 mb-12">
           <div
             className={`flex-1 h-1 rounded-full ${
-              stepValue !== "shipping" ? "bg-orange-500" : "bg-gray-200"
+              stepValue !== "shipping" ? "bg-accent" : "bg-gray-200"
             }`}
           ></div>
           <div
             className={`flex-1 h-1 rounded-full ${
               stepValue === "payment" || stepValue === "confirmation"
-                ? "bg-orange-500"
+                ? "bg-accent"
                 : "bg-gray-200"
             }`}
           ></div>
           <div
             className={`flex-1 h-1 rounded-full ${
-              stepValue === "confirmation" ? "bg-orange-500" : "bg-gray-200"
+              stepValue === "confirmation" ? "bg-accent" : "bg-gray-200"
             }`}
           ></div>
         </div>
@@ -228,35 +318,107 @@ export default function Checkout() {
             <div>
               <h2 className="heading-subsection mb-6">Payment Method</h2>
 
-              <div className="bg-orange-50 p-6 rounded-lg mb-6 border-2 border-orange-500">
-                <div className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Check className="w-4 h-4 text-white" />
+              {/* Payment method selector */}
+              <div className="space-y-3 mb-6">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("cod")}
+                  className={`w-full text-left p-5 transition-all ${
+                    paymentMethod === "cod" ? "glass-accent" : "glass glass-hover"
+                  }`}
+                  style={{ borderRadius: "14px" }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                      paymentMethod === "cod" ? "border-accent" : "border-momo"
+                    }`}>
+                      {paymentMethod === "cod" && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
+                    </div>
+                    <Banknote className="w-5 h-5 text-accent" />
+                    <div>
+                      <h3 className="font-bold">Cash on Delivery</h3>
+                      <p className="text-dim text-sm">Pay when your order arrives.</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold mb-2">Cash on Delivery</h3>
-                    <p className="text-gray-600">
-                      Pay when your order arrives. No payment required now.
-                    </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("online")}
+                  className={`w-full text-left p-5 transition-all ${
+                    paymentMethod === "online" ? "glass-accent" : "glass glass-hover"
+                  }`}
+                  style={{ borderRadius: "14px" }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                      paymentMethod === "online" ? "border-accent" : "border-momo"
+                    }`}>
+                      {paymentMethod === "online" && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
+                    </div>
+                    <CreditCard className="w-5 h-5 text-accent" />
+                    <div>
+                      <h3 className="font-bold">Pay Online</h3>
+                      <p className="text-dim text-sm">Card, Meeza, Vodafone Cash, InstaPay.</p>
+                    </div>
                   </div>
-                </div>
+                </button>
               </div>
 
-              <div className="bg-gray-50 p-6 rounded-lg mb-6">
+              <div className="glass p-6 mb-6" style={{ borderRadius: "16px" }}>
                 <h3 className="font-bold mb-4">Order Summary</h3>
-                <div className="space-y-2 mb-4 pb-4 border-b border-gray-200">
+
+                {/* Coupon field */}
+                <div className="mb-4 pb-4 border-b border-momo">
+                  {coupon ? (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">
+                        <span className="text-accent font-bold">{coupon.code}</span> applied
+                      </span>
+                      <button onClick={handleRemoveCoupon} className="text-dim hover:text-red-400 text-xs underline">
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                        placeholder="Discount code"
+                        className="flex-1 bg-transparent border border-momo text-white px-3 py-2 text-sm placeholder:text-dim focus:outline-none focus:border-accent"
+                        style={{ borderRadius: "8px" }}
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        disabled={couponLoading || !couponInput.trim()}
+                        className="px-4 py-2 text-xs font-bold uppercase tracking-wide bg-white/10 hover:bg-white/20 text-white disabled:opacity-50 transition-colors"
+                        style={{ borderRadius: "8px" }}
+                      >
+                        {couponLoading ? "..." : "Apply"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2 mb-4 pb-4 border-b border-momo">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span>2,850 LE</span>
+                    <span className="text-dim">Subtotal</span>
+                    <span>{subtotal.toLocaleString()} LE</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Shipping</span>
-                    <span>50 LE</span>
+                    <span className="text-dim">Shipping</span>
+                    <span>{shipping === 0 ? "Free" : `${shipping} LE`}</span>
                   </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-accent">
+                      <span>Discount</span>
+                      <span>−{discount.toLocaleString()} LE</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex justify-between">
                   <span className="font-bold">Total</span>
-                  <span className="font-bold text-2xl text-orange-500">2,900 LE</span>
+                  <span className="font-bold text-2xl text-accent">{total.toLocaleString()} LE</span>
                 </div>
               </div>
 
@@ -265,7 +427,11 @@ export default function Checkout() {
                 disabled={isSubmitting}
                 className="w-full btn-primary"
               >
-                {isSubmitting ? "Processing..." : "Place Order"}
+                {isSubmitting
+                  ? "Processing..."
+                  : paymentMethod === "online"
+                    ? "Continue to Payment"
+                    : "Place Order"}
               </Button>
 
               <Button
