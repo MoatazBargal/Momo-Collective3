@@ -2,17 +2,18 @@ import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { PRODUCT_CATEGORIES } from "@shared/const";
-import { PRODUCTS } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/motion/Reveal";
+import { useProducts } from "@/hooks/useProducts";
 
 export default function Shop() {
+  const { products, loading } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc">("newest");
 
   const filteredProducts = useMemo(() => {
-    let filtered = PRODUCTS;
+    let filtered = products;
 
     if (selectedCategory && selectedCategory !== "all") {
       filtered = filtered.filter((p) => p.category === selectedCategory);
@@ -28,7 +29,7 @@ export default function Shop() {
       filtered = [...filtered].sort((a, b) => b.price - a.price);
     }
     return filtered;
-  }, [selectedCategory, searchQuery, sortBy]);
+  }, [products, selectedCategory, searchQuery, sortBy]);
 
   return (
     <div style={{ backgroundColor: "var(--momo-bg)" }} className="min-h-screen">
@@ -82,7 +83,11 @@ export default function Shop() {
 
       {/* Grid */}
       <section className="section-padding container">
-        {filteredProducts.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-lg text-dim">No products found.</p>
           </div>

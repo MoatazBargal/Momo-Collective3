@@ -3,9 +3,10 @@ import { ASSETS } from "@/assets";
 import { ArrowRight } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/motion/Reveal";
-import { PRODUCTS } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 
 export default function Home() {
+  const { products } = useProducts();
   return (
     <div style={{ backgroundColor: "var(--momo-bg)" }}>
       {/* ===== HERO ===== */}
@@ -100,7 +101,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {PRODUCTS.map((product, i) => (
+          {products.slice(0, 3).map((product, i) => (
             <Reveal key={product.id} delay={i * 0.08}>
               <ProductCard product={product} />
             </Reveal>

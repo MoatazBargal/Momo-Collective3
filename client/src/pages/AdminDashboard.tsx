@@ -18,6 +18,7 @@ import {
   type AdminStats,
 } from "@/lib/api";
 import AdminProducts from "@/components/admin/AdminProducts";
+import AdminOrderDetailModal from "@/components/admin/AdminOrderDetailModal";
 
 const STATUSES = ["All", "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
 const NEXT_STATUS: Record<string, string[]> = {
@@ -42,6 +43,7 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [filter, setFilter] = useState("All");
   const [tab, setTab] = useState<"orders" | "products">("orders");
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const load = useCallback(
     async (tok: string, status: string) => {
@@ -223,7 +225,13 @@ export default function AdminDashboard() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1">
-                      <span className="font-bold" style={{ fontFamily: "var(--font-display)" }}>{order.orderNumber}</span>
+                      <button
+                        onClick={() => setSelectedOrderId(order.id)}
+                        className="font-bold text-white hover:text-accent transition-colors"
+                        style={{ fontFamily: "var(--font-display)" }}
+                      >
+                        {order.orderNumber}
+                      </button>
                       <StatusBadge status={order.status} />
                     </div>
                     <p className="text-dim text-sm">
@@ -260,6 +268,14 @@ export default function AdminDashboard() {
         </>
         )}
       </div>
+
+      {selectedOrderId !== null && (
+        <AdminOrderDetailModal
+          token={token}
+          orderId={selectedOrderId}
+          onClose={() => setSelectedOrderId(null)}
+        />
+      )}
     </div>
   );
 }

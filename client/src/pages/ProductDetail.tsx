@@ -2,14 +2,13 @@ import { useState } from "react";
 import { Heart, Minus, Plus, Check } from "lucide-react";
 import { toast } from "sonner";
 import { SIZES, CURRENCY_SYMBOL } from "@shared/const";
-import { getProductBySlug, getRelatedProducts } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/contexts/CartContext";
+import { useProduct } from "@/hooks/useProducts";
 
 export default function ProductDetail({ params }: { params: { slug: string } }) {
   const slug = params?.slug || "oversized-tee";
-  const product = getProductBySlug(slug);
-  const related = getRelatedProducts(slug);
+  const { product, related, loading } = useProduct(slug);
   const { addItem } = useCart();
 
   const [selectedColor, setSelectedColor] = useState(product?.colors[0]?.name || "");
@@ -17,6 +16,14 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  if (loading && !product) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center" style={{ backgroundColor: "var(--momo-bg)" }}>
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!product) {
     return (

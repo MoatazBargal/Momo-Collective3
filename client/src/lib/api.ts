@@ -60,6 +60,36 @@ export function fetchAdminOrders(token: string, status?: string) {
   });
 }
 
+/** Full order detail (with line items) */
+export type AdminOrderItem = {
+  id: number;
+  productName: string;
+  productSlug: string | null;
+  color: string;
+  size: string;
+  quantity: number;
+  pricePerUnit: string;
+  subtotal: string;
+};
+
+export type AdminOrderDetail = AdminOrder & {
+  shippingEmail: string;
+  shippingAddress: string;
+  shippingPostalCode: string | null;
+  shippingCountry: string;
+  subtotal: string;
+  shippingCost: string;
+  paymentStatus: string;
+  notes: string | null;
+};
+
+export function fetchAdminOrder(token: string, id: number) {
+  return apiFetch<{ order: AdminOrderDetail; items: AdminOrderItem[] }>(
+    `/admin/orders/${id}`,
+    { headers: adminHeaders(token) }
+  );
+}
+
 export function updateOrderStatus(token: string, id: number, status: string) {
   return apiFetch<{ ok: boolean }>(`/admin/orders/${id}`, {
     method: "PATCH",
@@ -132,5 +162,18 @@ export function deleteProduct(token: string, id: number) {
   return apiFetch<{ ok: boolean }>(`/products/${id}`, {
     method: "DELETE",
     headers: adminHeaders(token),
+  });
+}
+
+/* ---------- Payment (Paymob) ---------- */
+export type IntentionResponse = {
+  clientSecret: string;
+  publicKey: string;
+};
+
+export function createPaymentIntention(orderId: number) {
+  return apiFetch<IntentionResponse>("/payment/intention", {
+    method: "POST",
+    body: JSON.stringify({ orderId }),
   });
 }

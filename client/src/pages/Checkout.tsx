@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import { Check, CreditCard, Banknote } from "lucide-react";
 import { toast } from "sonner";
-import { createOrder } from "@/lib/api";
+import { createOrder, createPaymentIntention } from "@/lib/api";
 import { useCart } from "@/contexts/CartContext";
 
 type PaymentMethod = "online" | "cod";
@@ -78,6 +78,26 @@ export default function Checkout() {
         },
       });
 
+      if (paymentMethod === "online") {
+        // Create a Paymob intention and open the hosted checkout.
+        // The order stays "Unpaid" until Paymob's webhook confirms payment.
+        try {
+          const { clientSecret, publicKey } = await createPaymentIntention(result.orderId);
+          setOrderNumber(result.orderNumber);
+          // Redirect to Paymob's unified checkout
+          const url = `https://accept.paymob.com/unifiedcheckout/?publicKey=${encodeURIComponent(publicKey)}&clientSecret=${encodeURIComponent(clientSecret)}`;
+          window.location.href = url;
+          return;
+        } catch (payErr) {
+          toast.error(
+            payErr instanceof Error ? payErr.message : "Could not start online payment. Try Cash on Delivery."
+          );
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // COD path
       setOrderNumber(result.orderNumber);
       clearCart();
       setStep("confirmation");
