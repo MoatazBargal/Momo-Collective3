@@ -57,7 +57,7 @@ export default function Shop() {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-transparent border-momo text-white placeholder:text-dim"
+              className="pl-10 bg-transparent border-momo text-[color:var(--momo-text)] placeholder:text-dim"
               style={{ borderRadius: 0 }}
             />
           </div>
@@ -77,7 +77,7 @@ export default function Shop() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="bg-transparent border border-momo text-white text-sm px-3 py-2 focus:outline-none focus:border-accent"
+              className="bg-transparent border border-momo text-[color:var(--momo-text)] text-sm px-3 py-2 focus:outline-none focus:border-accent"
               style={{ borderRadius: 0 }}
             >
               <option value="newest" style={{ color: "#000" }}>Newest</option>

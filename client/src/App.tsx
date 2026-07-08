@@ -23,6 +23,7 @@ const Auth = lazy(() => import("@/pages/Auth"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Wishlist = lazy(() => import("@/pages/Wishlist"));
 const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"));
+const TrackOrder = lazy(() => import("@/pages/TrackOrder"));
 
 // Lightweight loading fallback
 function RouteLoader() {
@@ -87,6 +88,13 @@ function Router() {
         <PageLayout>
           <Suspense fallback={<RouteLoader />}>
             <Wishlist />
+          </Suspense>
+        </PageLayout>
+      </Route>
+      <Route path="/track">
+        <PageLayout>
+          <Suspense fallback={<RouteLoader />}>
+            <TrackOrder />
           </Suspense>
         </PageLayout>
       </Route>

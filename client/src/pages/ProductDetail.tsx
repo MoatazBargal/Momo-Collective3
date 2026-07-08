@@ -119,13 +119,13 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
                   </span>
                 )}
               </div>
-              <p className="text-lg leading-relaxed text-white/70">{product.description}</p>
+              <p className="text-lg leading-relaxed text-[color:var(--momo-text)] opacity-80">{product.description}</p>
             </div>
 
             {/* Color */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest mb-3 text-dim">
-                Color — <span className="text-white">{selectedColor}</span>
+                Color — <span className="text-[color:var(--momo-text)]">{selectedColor}</span>
               </label>
               <div className="flex gap-3">
                 {product.colors.map((color) => (
@@ -152,7 +152,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
                     className={`py-3 text-sm font-bold border-2 transition-all ${
                       selectedSize === size
                         ? "border-accent bg-accent text-white"
-                        : "border-momo text-white hover:border-accent"
+                        : "border-momo text-[color:var(--momo-text)] hover:border-accent"
                     }`}
                     style={{ fontFamily: "var(--font-display)", borderRadius: 0 }}
                   >
@@ -168,11 +168,11 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
             <div className="space-y-3">
               <div className="flex items-center gap-4">
                 <div className="flex items-center border border-momo" style={{ borderRadius: 0 }}>
-                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 text-white hover:text-accent">
+                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 text-[color:var(--momo-text)] hover:text-accent">
                     <Minus className="w-5 h-5" />
                   </button>
-                  <span className="px-6 font-bold text-white">{quantity}</span>
-                  <button onClick={() => setQuantity(quantity + 1)} className="p-3 text-white hover:text-accent">
+                  <span className="px-6 font-bold text-[color:var(--momo-text)]">{quantity}</span>
+                  <button onClick={() => setQuantity(quantity + 1)} className="p-3 text-[color:var(--momo-text)] hover:text-accent">
                     <Plus className="w-5 h-5" />
                   </button>
                 </div>
@@ -204,7 +204,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
                   Materials & Care
                   <Plus className="w-4 h-4 group-open:rotate-45 transition-transform" />
                 </summary>
-                <div className="mt-3 text-sm text-white/70 space-y-1.5">
+                <div className="mt-3 text-sm text-[color:var(--momo-text)] opacity-80 space-y-1.5">
                   <p>• Premium heavyweight fabric, built to last.</p>
                   <p>• Machine wash cold, inside out.</p>
                   <p>• Do not bleach. Tumble dry low.</p>
@@ -216,7 +216,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
                   Shipping & Returns
                   <Plus className="w-4 h-4 group-open:rotate-45 transition-transform" />
                 </summary>
-                <div className="mt-3 text-sm text-white/70 space-y-1.5">
+                <div className="mt-3 text-sm text-[color:var(--momo-text)] opacity-80 space-y-1.5">
                   <p>• Cash on delivery available across Egypt.</p>
                   <p>• Free shipping on orders over 2,000 {CURRENCY_SYMBOL}.</p>
                   <p>• Delivery within 2–5 business days.</p>

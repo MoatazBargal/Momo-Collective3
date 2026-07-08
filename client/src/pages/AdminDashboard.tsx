@@ -11,6 +11,7 @@ import {
   Clock,
   Tag,
   Star,
+  ShoppingCart,
 } from "lucide-react";
 import {
   fetchAdminOrders,
@@ -20,6 +21,7 @@ import {
 import AdminProducts from "@/components/admin/AdminProducts";
 import AdminCoupons from "@/components/admin/AdminCoupons";
 import AdminReviews from "@/components/admin/AdminReviews";
+import AdminAbandonedCarts from "@/components/admin/AdminAbandonedCarts";
 import AdminOrderDetailModal from "@/components/admin/AdminOrderDetailModal";
 const AdminOverview = lazy(() => import("@/components/admin/AdminOverview"));
 
@@ -44,7 +46,7 @@ export default function AdminDashboard() {
 
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [filter, setFilter] = useState("All");
-  const [tab, setTab] = useState<"overview" | "orders" | "products" | "coupons" | "reviews">("overview");
+  const [tab, setTab] = useState<"overview" | "orders" | "products" | "coupons" | "reviews" | "carts">("overview");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const load = useCallback(
@@ -143,7 +145,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <span className="eyebrow block mb-1">Dashboard</span>
-            <h1 className="heading-section">{tab === "overview" ? "Overview" : tab === "orders" ? "Orders" : tab === "products" ? "Products" : tab === "coupons" ? "Coupons" : "Reviews"}</h1>
+            <h1 className="heading-section">{tab === "overview" ? "Overview" : tab === "orders" ? "Orders" : tab === "products" ? "Products" : tab === "coupons" ? "Coupons" : tab === "reviews" ? "Reviews" : "Abandoned Carts"}</h1>
           </div>
           <div className="flex gap-2">
             {tab === "orders" && (
@@ -204,6 +206,15 @@ export default function AdminDashboard() {
           >
             <Star className="w-4 h-4" /> Reviews
           </button>
+          <button
+            onClick={() => setTab("carts")}
+            className={`px-5 py-2.5 text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2 transition-colors ${
+              tab === "carts" ? "bg-accent text-white" : "glass-chip text-white"
+            }`}
+            style={{ fontFamily: "var(--font-display)", borderRadius: "10px" }}
+          >
+            <ShoppingCart className="w-4 h-4" /> Carts
+          </button>
         </div>
 
         {tab === "overview" && (
@@ -217,6 +228,8 @@ export default function AdminDashboard() {
         {tab === "coupons" && <AdminCoupons token={token} />}
 
         {tab === "reviews" && <AdminReviews token={token} />}
+
+        {tab === "carts" && <AdminAbandonedCarts token={token} />}
 
         {tab === "orders" && (
         <>

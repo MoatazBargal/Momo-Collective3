@@ -344,3 +344,69 @@ export function updateVariantStock(token: string, productId: number, variantId: 
     body: JSON.stringify({ variantId, stock }),
   });
 }
+
+/* ---------- Order tracking (public) ---------- */
+export type TrackedOrder = {
+  order: {
+    orderNumber: string;
+    status: string;
+    paymentMethod: string;
+    paymentStatus: string;
+    total: string;
+    createdAt: string;
+    shippingFirstName: string;
+    shippingCity: string;
+  };
+  items: { productName: string; color: string; size: string; quantity: number }[];
+};
+
+export function trackOrder(orderNumber: string, phone: string) {
+  return apiFetch<TrackedOrder>(
+    `/orders?track=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(phone)}`
+  );
+}
+
+/* ---------- Abandoned Carts ---------- */
+export type AbandonedCartItem = {
+  name: string;
+  color: string;
+  size: string;
+  quantity: number;
+  price: number;
+};
+
+export type AbandonedCart = {
+  id: number;
+  phone: string;
+  name: string | null;
+  items: AbandonedCartItem[];
+  subtotal: string;
+  status: "Open" | "Contacted" | "Recovered" | "Dismissed";
+  createdAt: string;
+  updatedAt: string;
+};
+
+export function captureAbandonedCart(payload: {
+  phone: string;
+  name?: string;
+  items: AbandonedCartItem[];
+  subtotal: number;
+}) {
+  return apiFetch<{ ok: boolean; id: number }>("/abandoned-carts", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function fetchAbandonedCarts(token: string, status?: string) {
+  const q = status && status !== "All" ? `?status=${status}` : "";
+  return apiFetch<{ carts: AbandonedCart[] }>(`/abandoned-carts${q}`, { headers: adminHeaders(token) });
+}
+
+export function updateAbandonedCart(token: string, id: number, status: string) {
+  return apiFetch<{ ok: boolean }>(`/abandoned-carts?id=${id}`, {
+    method: "PATCH",
+    headers: adminHeaders(token),
+    body: JSON.stringify({ status }),
+  });
+}

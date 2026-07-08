@@ -118,7 +118,7 @@ export default function Home() {
             <h2 className="heading-section mb-8 leading-tight">
               No pretense.<br />No compromise.<br /><span className="text-accent">Just presence.</span>
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-white/70 text-lg leading-relaxed">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-[color:var(--momo-text)] opacity-75 text-lg leading-relaxed">
               <p>
                 Momo Collective is rooted in street culture. Every garment is designed with
                 intention — built to last, crafted to inspire the confident and the bold.

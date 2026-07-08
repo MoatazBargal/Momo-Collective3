@@ -49,7 +49,7 @@ export default function Auth() {
   };
 
   const inputClass =
-    "w-full bg-transparent border border-momo text-white px-4 py-3 placeholder:text-dim focus:outline-none focus:border-accent";
+    "w-full bg-transparent border border-momo text-[color:var(--momo-text)] px-4 py-3 placeholder:text-dim focus:outline-none focus:border-accent";
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6" style={{ backgroundColor: "var(--momo-bg)" }}>

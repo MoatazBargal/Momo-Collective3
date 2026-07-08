@@ -183,9 +183,14 @@ export default function Checkout() {
               </div>
             </div>
 
-            <Link href="/">
-              <Button className="btn-primary">Back to Home</Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/track">
+                <Button className="btn-primary">Track Your Order</Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline">Back to Home</Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -292,12 +297,12 @@ export default function Checkout() {
                     value={formData.governorate}
                     onChange={handleChange}
                     required
-                    className="w-full bg-transparent border border-momo text-white px-3 py-2.5 focus:outline-none focus:border-accent"
+                    className="w-full bg-transparent border border-momo text-[color:var(--momo-text)] px-3 py-2.5 focus:outline-none focus:border-accent"
                     style={{ borderRadius: "8px" }}
                   >
-                    <option value="" style={{ background: "#141414" }}>Select…</option>
+                    <option value="" style={{ background: "var(--momo-surface)", color: "var(--momo-text)" }}>Select…</option>
                     {EGYPT_GOVERNORATES.map((g) => (
-                      <option key={g.en} value={g.en} style={{ background: "#141414" }}>
+                      <option key={g.en} value={g.en} style={{ background: "var(--momo-surface)", color: "var(--momo-text)" }}>
                         {g.en} — {g.ar}
                       </option>
                     ))}
@@ -405,7 +410,7 @@ export default function Checkout() {
                         value={couponInput}
                         onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
                         placeholder="Discount code"
-                        className="flex-1 bg-transparent border border-momo text-white px-3 py-2 text-sm placeholder:text-dim focus:outline-none focus:border-accent"
+                        className="flex-1 bg-transparent border border-momo text-[color:var(--momo-text)] px-3 py-2 text-sm placeholder:text-dim focus:outline-none focus:border-accent"
                         style={{ borderRadius: "8px" }}
                       />
                       <button

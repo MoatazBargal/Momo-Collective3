@@ -9,6 +9,59 @@ import { computeDiscount } from "../../shared/couponTypes.js";
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (applyCors(req, res)) return;
 
+  // --- Public order tracking: GET /api/orders?track=<orderNumber>&phone=<phone> ---
+  if (req.method === "GET") {
+    const orderNumber = String(req.query.track || "").trim();
+    const phone = String(req.query.phone || "").trim();
+    if (!orderNumber || !phone) {
+      res.status(400).json({ error: "Order number and phone are required" });
+      return;
+    }
+    try {
+      const db = getDb();
+      const [order] = await db
+        .select()
+        .from(schema.orders)
+        .where(eq(schema.orders.orderNumber, orderNumber));
+
+      // Verify both the order number AND phone match (privacy: don't leak others' orders)
+      const normalize = (p: string) => p.replace(/[\s\-+]/g, "").replace(/^20/, "0");
+      if (!order || normalize(order.shippingPhone) !== normalize(phone)) {
+        res.status(404).json({ error: "No order found with that number and phone" });
+        return;
+      }
+
+      const items = await db
+        .select()
+        .from(schema.orderItems)
+        .where(eq(schema.orderItems.orderId, order.id));
+
+      // Return only what the customer needs (no internal fields)
+      res.status(200).json({
+        order: {
+          orderNumber: order.orderNumber,
+          status: order.status,
+          paymentMethod: order.paymentMethod,
+          paymentStatus: order.paymentStatus,
+          total: order.total,
+          createdAt: order.createdAt,
+          shippingFirstName: order.shippingFirstName,
+          shippingCity: order.shippingCity,
+        },
+        items: items.map((it) => ({
+          productName: it.productName,
+          color: it.color,
+          size: it.size,
+          quantity: it.quantity,
+        })),
+      });
+    } catch (err) {
+      console.error("[orders track] failed:", err);
+      res.status(500).json({ error: "Failed to look up order" });
+    }
+    return;
+  }
+
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
     return;

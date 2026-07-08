@@ -4,8 +4,8 @@
 export const ASSETS = {
   // Hero & Brand
   heroBanner: {
-    original: "https://d2xsxph8kpxj0f.cloudfront.net/310519663767986939/SipvdNwWkdPZPvtzwSvRNT/hero-banner-d9p2JfNGj4XcQngrm7HEeh.png",
-    compressed: "https://d2xsxph8kpxj0f.cloudfront.net/310519663767986939/SipvdNwWkdPZPvtzwSvRNT/hero-banner-f9SrkGmPJ7TnfyJMEPLvKr.webp",
+    original: "/images/hero-banner.png",
+    compressed: "/images/hero-banner.webp",
   },
 
   // Product Images

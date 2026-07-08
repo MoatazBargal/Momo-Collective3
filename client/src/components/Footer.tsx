@@ -34,7 +34,7 @@ export default function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email address"
-                className="flex-1 bg-transparent border border-momo text-white px-4 py-3 placeholder:text-dim focus:outline-none focus:border-accent"
+                className="flex-1 bg-transparent border border-momo px-4 py-3 text-[color:var(--momo-text)] placeholder:text-dim focus:outline-none focus:border-accent"
                 style={{ borderRadius: 0 }}
               />
               <button onClick={handleSubscribe} className="btn-primary flex items-center gap-2" aria-label="Subscribe">
@@ -67,7 +67,7 @@ export default function Footer() {
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href}>
-                    <span className="text-sm text-white/80 hover:text-accent transition-colors cursor-pointer">{l.label}</span>
+                    <span className="text-sm nav-text hover:text-accent transition-colors cursor-pointer">{l.label}</span>
                   </Link>
                 </li>
               ))}
@@ -80,10 +80,11 @@ export default function Footer() {
               {[
                 { href: "/about", label: "About" },
                 { href: "/contact", label: "Contact" },
+                { href: "/track", label: "Track Order" },
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href}>
-                    <span className="text-sm text-white/80 hover:text-accent transition-colors cursor-pointer">{l.label}</span>
+                    <span className="text-sm nav-text hover:text-accent transition-colors cursor-pointer">{l.label}</span>
                   </Link>
                 </li>
               ))}
@@ -93,7 +94,7 @@ export default function Footer() {
           <div>
             <h3 className="text-xs font-bold tracking-widest uppercase text-dim mb-4">Connect</h3>
             <a href="https://instagram.com/momocollective" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-white/80 hover:text-accent transition-colors">
+              className="inline-flex items-center gap-2 text-sm nav-text hover:text-accent transition-colors">
               <Instagram className="w-4 h-4" /> Instagram
             </a>
           </div>

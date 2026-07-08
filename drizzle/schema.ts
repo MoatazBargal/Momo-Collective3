@@ -171,3 +171,21 @@ export const reviews = pgTable("reviews", {
 
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = typeof reviews.$inferInsert;
+
+/* ---------- Abandoned Carts ---------- */
+export const abandonedCartStatusEnum = pgEnum("abandoned_cart_status", ["Open", "Contacted", "Recovered", "Dismissed"]);
+
+export const abandonedCarts = pgTable("abandoned_carts", {
+  id: serial("id").primaryKey(),
+  phone: varchar("phone", { length: 30 }).notNull(),
+  name: varchar("name", { length: 100 }),
+  // Cart line items snapshot: [{ name, color, size, quantity, price }]
+  items: json("items").notNull(),
+  subtotal: numeric("subtotal", { precision: 10, scale: 2 }).notNull(),
+  status: abandonedCartStatusEnum("status").default("Open").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type AbandonedCart = typeof abandonedCarts.$inferSelect;
+export type InsertAbandonedCart = typeof abandonedCarts.$inferInsert;

@@ -1,14 +1,38 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Trash2, Minus, Plus, ShoppingBag, MessageCircle } from "lucide-react";
+import { toast } from "sonner";
 import { CURRENCY_SYMBOL, WHATSAPP_NUMBER } from "@shared/const";
 import { useCart } from "@/contexts/CartContext";
+import { captureAbandonedCart } from "@/lib/api";
 
 const SHIPPING_FLAT = 50;
 const FREE_SHIPPING_OVER = 2000;
 
 export default function Cart() {
   const { items, subtotal, updateQuantity, removeItem } = useCart();
+  const [savePhone, setSavePhone] = useState("");
+  const [saved, setSaved] = useState(false);
+
+  // Save the cart + phone so the brand can follow up (manual recovery)
+  const handleSaveCart = async () => {
+    const phone = savePhone.trim();
+    if (!phone) return;
+    try {
+      await captureAbandonedCart({
+        phone,
+        items: items.map((it) => ({
+          name: it.name, color: it.color, size: it.size, quantity: it.quantity, price: it.price,
+        })),
+        subtotal,
+      });
+      setSaved(true);
+      toast.success("Saved! We'll hold your cart and reach out on WhatsApp.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not save cart");
+    }
+  };
 
   // Build a pre-filled WhatsApp message with the cart contents
   const buildWhatsAppOrder = () => {
@@ -144,6 +168,36 @@ export default function Cart() {
                   Continue Shopping
                 </Button>
               </Link>
+
+              {/* Save cart for later — manual WhatsApp follow-up */}
+              <div className="mt-6 pt-6 border-t border-momo">
+                {saved ? (
+                  <p className="text-sm text-accent text-center">
+                    ✓ We've saved your cart — we'll reach out on WhatsApp.
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-sm text-dim mb-2">Not ready? Save your cart & we'll follow up:</p>
+                    <div className="flex gap-2">
+                      <input
+                        value={savePhone}
+                        onChange={(e) => setSavePhone(e.target.value)}
+                        placeholder="Your WhatsApp number"
+                        className="flex-1 bg-transparent border border-momo text-[color:var(--momo-text)] px-3 py-2 text-sm placeholder:text-dim focus:outline-none focus:border-accent"
+                        style={{ borderRadius: "8px" }}
+                      />
+                      <button
+                        onClick={handleSaveCart}
+                        disabled={!savePhone.trim()}
+                        className="px-4 py-2 text-xs font-bold uppercase tracking-wide bg-white/10 hover:bg-white/20 text-[color:var(--momo-text)] disabled:opacity-50 transition-colors"
+                        style={{ borderRadius: "8px" }}
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

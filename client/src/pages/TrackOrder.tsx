@@ -1,0 +1,143 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Package, Check, Truck, Home as HomeIcon, X, Search } from "lucide-react";
+import { toast } from "sonner";
+import { trackOrder, type TrackedOrder } from "@/lib/api";
+import { CURRENCY_SYMBOL } from "@shared/const";
+
+const STEPS = [
+  { key: "Pending", label: "Order Placed", icon: Check },
+  { key: "Confirmed", label: "Confirmed", icon: Package },
+  { key: "Shipped", label: "Shipped", icon: Truck },
+  { key: "Delivered", label: "Delivered", icon: HomeIcon },
+];
+
+function stepIndex(status: string) {
+  const i = STEPS.findIndex((s) => s.key === status);
+  return i; // -1 for Cancelled
+}
+
+export default function TrackOrder() {
+  const [orderNumber, setOrderNumber] = useState("");
+  const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<TrackedOrder | null>(null);
+
+  const handleTrack = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!orderNumber.trim() || !phone.trim()) {
+      toast.error("Enter your order number and phone");
+      return;
+    }
+    setLoading(true);
+    setResult(null);
+    try {
+      const data = await trackOrder(orderNumber.trim(), phone.trim());
+      setResult(data);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Order not found");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelled = result?.order.status === "Cancelled";
+  const activeStep = result ? stepIndex(result.order.status) : -1;
+
+  return (
+    <div style={{ backgroundColor: "var(--momo-bg)" }} className="min-h-screen">
+      <div className="section-padding container max-w-2xl">
+        <span className="eyebrow block mb-2">Order Status</span>
+        <h1 className="heading-section mb-8">Track Your Order</h1>
+
+        <form onSubmit={handleTrack} className="glass p-6 space-y-4 mb-8" style={{ borderRadius: "16px" }}>
+          <div>
+            <label className="block text-sm font-semibold mb-2">Order Number</label>
+            <Input
+              value={orderNumber}
+              onChange={(e) => setOrderNumber(e.target.value.toUpperCase())}
+              placeholder="MOMO-20260101-XXXXXX"
+              className="bg-transparent border-momo text-[color:var(--momo-text)] placeholder:text-dim"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold mb-2">Phone Number</label>
+            <Input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="01xxxxxxxxx"
+              className="bg-transparent border-momo text-[color:var(--momo-text)] placeholder:text-dim"
+            />
+          </div>
+          <Button type="submit" disabled={loading} className="w-full btn-primary inline-flex items-center justify-center gap-2">
+            <Search className="w-4 h-4" /> {loading ? "Searching…" : "Track Order"}
+          </Button>
+        </form>
+
+        {result && (
+          <div className="glass p-6" style={{ borderRadius: "16px" }}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="font-bold text-lg" style={{ fontFamily: "var(--font-display)" }}>{result.order.orderNumber}</p>
+                <p className="text-dim text-sm">
+                  {result.order.shippingFirstName} · {result.order.shippingCity}
+                </p>
+              </div>
+              <span className="text-accent font-bold">{Number(result.order.total).toLocaleString()} {CURRENCY_SYMBOL}</span>
+            </div>
+
+            {cancelled ? (
+              <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30" style={{ borderRadius: "12px" }}>
+                <X className="w-5 h-5 text-red-500" />
+                <span className="font-semibold text-red-500">This order was cancelled</span>
+              </div>
+            ) : (
+              <div className="relative flex justify-between mb-2">
+                {STEPS.map((s, i) => {
+                  const done = i <= activeStep;
+                  const Icon = s.icon;
+                  return (
+                    <div key={s.key} className="flex flex-col items-center flex-1 relative z-10">
+                      <div
+                        className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${
+                          done ? "bg-accent text-white" : "surface-2 text-dim"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className={`text-xs mt-2 text-center ${done ? "text-[color:var(--momo-text)] font-semibold" : "text-dim"}`}>
+                        {s.label}
+                      </span>
+                      {i < STEPS.length - 1 && (
+                        <div
+                          className={`absolute top-[22px] left-1/2 w-full h-0.5 -z-0 ${i < activeStep ? "bg-accent" : "bg-white/10"}`}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Payment */}
+            <div className="mt-6 pt-4 border-t border-momo flex items-center justify-between text-sm">
+              <span className="text-dim">Payment</span>
+              <span className="font-semibold">{result.order.paymentMethod} · {result.order.paymentStatus}</span>
+            </div>
+
+            {/* Items */}
+            <div className="mt-4 space-y-2">
+              {result.items.map((it, i) => (
+                <div key={i} className="flex justify-between text-sm">
+                  <span>{it.productName} <span className="text-dim">({it.color}/{it.size})</span></span>
+                  <span className="text-dim">×{it.quantity}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
