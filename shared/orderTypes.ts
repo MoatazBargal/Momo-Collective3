@@ -21,6 +21,7 @@ export const createOrderSchema = z.object({
     phone: z.string().min(6).max(20),
     address: z.string().min(1),
     city: z.string().min(1).max(100),
+    governorate: z.string().max(100).optional(),
     postalCode: z.string().max(20).optional(),
     country: z.string().max(100).default("Egypt"),
   }),
@@ -31,12 +32,13 @@ export const createOrderSchema = z.object({
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 export type OrderItemInput = z.infer<typeof orderItemSchema>;
 
-/** Shipping cost rules (kept in sync with shared/const.ts) */
-export const SHIPPING_FLAT = 50; // EGP
+import { computeShipping } from "./shipping.js";
+
+/** Shipping cost rules — see shared/shipping.ts for zone fees */
 export const FREE_SHIPPING_OVER = 2000; // EGP
 
-export function computeTotals(items: OrderItemInput[]) {
+export function computeTotals(items: OrderItemInput[], governorate?: string) {
   const subtotal = items.reduce((sum, it) => sum + it.pricePerUnit * it.quantity, 0);
-  const shippingCost = subtotal >= FREE_SHIPPING_OVER ? 0 : SHIPPING_FLAT;
+  const shippingCost = computeShipping(subtotal, governorate);
   return { subtotal, shippingCost, total: subtotal + shippingCost };
 }

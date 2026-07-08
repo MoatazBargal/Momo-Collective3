@@ -95,17 +95,17 @@ export default function Navbar() {
                   </Link>
                   {/* Mega menu */}
                   <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                    <div className="glass-strong p-2 min-w-[220px]" style={{ borderRadius: "14px" }}>
+                    <div className="glass-strong p-2 w-64" style={{ borderRadius: "14px", background: "rgba(20, 20, 20, 0.92)" }}>
                       <Link href="/shop">
-                        <div className="px-4 py-2.5 text-xs font-bold uppercase tracking-widest nav-text hover:text-accent hover:bg-white/5 cursor-pointer transition-colors" style={{ borderRadius: "8px" }}>
+                        <div className="px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:text-accent hover:bg-white/10 cursor-pointer transition-colors whitespace-nowrap" style={{ borderRadius: "8px" }}>
                           All Products
                         </div>
                       </Link>
                       {SHOP_CATEGORIES.map((cat) => (
                         <Link key={cat.slug} href={`/shop?category=${cat.slug}`}>
-                          <div className="px-4 py-2.5 flex items-center justify-between nav-text hover:text-accent hover:bg-white/5 cursor-pointer transition-colors" style={{ borderRadius: "8px" }}>
-                            <span className="text-xs font-bold uppercase tracking-widest">{cat.label}</span>
-                            <span className="text-xs text-dim">{cat.ar}</span>
+                          <div className="px-4 py-2.5 flex items-center justify-between gap-4 text-white hover:text-accent hover:bg-white/10 cursor-pointer transition-colors" style={{ borderRadius: "8px" }}>
+                            <span className="text-xs font-bold uppercase tracking-widest whitespace-nowrap">{cat.label}</span>
+                            <span className="text-xs text-dim whitespace-nowrap" dir="rtl">{cat.ar}</span>
                           </div>
                         </Link>
                       ))}

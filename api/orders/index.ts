@@ -76,7 +76,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const input = parsed.data;
 
   // Server-side total computation (never trust client totals)
-  const { subtotal, shippingCost } = computeTotals(input.items);
+  const { subtotal, shippingCost } = computeTotals(input.items, input.shipping.governorate);
   const orderNumber = generateOrderNumber();
 
   try {

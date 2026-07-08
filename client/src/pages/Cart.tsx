@@ -6,9 +6,12 @@ import { toast } from "sonner";
 import { CURRENCY_SYMBOL, WHATSAPP_NUMBER } from "@shared/const";
 import { useCart } from "@/contexts/CartContext";
 import { captureAbandonedCart } from "@/lib/api";
+import { FREE_SHIPPING_OVER, SHIPPING_ZONES } from "@shared/shipping";
 
-const SHIPPING_FLAT = 50;
-const FREE_SHIPPING_OVER = 2000;
+// Lowest zone fee, shown as an estimate before governorate is chosen
+const MIN_SHIPPING = Math.min(...SHIPPING_ZONES.map((z) => z.fee));
+
+const SHIPPING_ESTIMATE = MIN_SHIPPING;
 
 export default function Cart() {
   const { items, subtotal, updateQuantity, removeItem } = useCart();
@@ -45,7 +48,8 @@ export default function Cart() {
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   };
 
-  const shipping = subtotal === 0 ? 0 : subtotal >= FREE_SHIPPING_OVER ? 0 : SHIPPING_FLAT;
+  const freeShipping = subtotal >= FREE_SHIPPING_OVER;
+  const shipping = subtotal === 0 || freeShipping ? 0 : SHIPPING_ESTIMATE;
   const total = subtotal + shipping;
 
   if (items.length === 0) {
@@ -134,7 +138,7 @@ export default function Cart() {
                 <div className="flex justify-between">
                   <span className="text-dim">Shipping</span>
                   <span className="font-semibold">
-                    {shipping === 0 ? "Free" : `${shipping} ${CURRENCY_SYMBOL}`}
+                    {freeShipping ? "Free" : `from ${shipping} ${CURRENCY_SYMBOL}`}
                   </span>
                 </div>
                 {subtotal > 0 && subtotal < FREE_SHIPPING_OVER && (

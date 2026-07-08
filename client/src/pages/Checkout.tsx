@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { createOrder, createPaymentIntention, validateCoupon, type AppliedCoupon } from "@/lib/api";
 import { useCart } from "@/contexts/CartContext";
 import { EGYPT_GOVERNORATES } from "@shared/egypt";
+import { computeShipping } from "@shared/shipping";
 
 type PaymentMethod = "online" | "cod";
 
@@ -37,7 +38,7 @@ export default function Checkout() {
 
   // Live totals from the real cart
   const subtotal = cartItems.reduce((sum, it) => sum + it.price * it.quantity, 0);
-  const shipping = subtotal === 0 ? 0 : subtotal >= 2000 ? 0 : 50;
+  const shipping = subtotal === 0 ? 0 : computeShipping(subtotal, formData.governorate || undefined);
   const discount = coupon ? coupon.discountAmount : 0;
   const total = Math.max(0, subtotal + shipping - discount);
 
@@ -100,6 +101,7 @@ export default function Checkout() {
           phone: formData.phone,
           address: formData.address,
           city: `${formData.city}, ${formData.governorate}`,
+          governorate: formData.governorate,
           postalCode: formData.postalCode || undefined,
           country: "Egypt",
         },
@@ -432,7 +434,13 @@ export default function Checkout() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-dim">Shipping</span>
-                    <span>{shipping === 0 ? "Free" : `${shipping} LE`}</span>
+                    <span>
+                      {!formData.governorate
+                        ? <span className="text-dim text-sm">Select governorate</span>
+                        : shipping === 0
+                          ? "Free"
+                          : `${shipping} LE`}
+                    </span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-accent">
