@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
-import { CURRENCY_SYMBOL } from "@shared/const";
+import { Trash2, Minus, Plus, ShoppingBag, MessageCircle } from "lucide-react";
+import { CURRENCY_SYMBOL, WHATSAPP_NUMBER } from "@shared/const";
 import { useCart } from "@/contexts/CartContext";
 
 const SHIPPING_FLAT = 50;
@@ -9,6 +9,17 @@ const FREE_SHIPPING_OVER = 2000;
 
 export default function Cart() {
   const { items, subtotal, updateQuantity, removeItem } = useCart();
+
+  // Build a pre-filled WhatsApp message with the cart contents
+  const buildWhatsAppOrder = () => {
+    const lines = items.map(
+      (it) => `• ${it.name} (${it.color}/${it.size}) ×${it.quantity} — ${it.price * it.quantity} ${CURRENCY_SYMBOL}`
+    );
+    const msg =
+      `مرحباً Momo Collective 👋\nحابب أطلب:\n\n${lines.join("\n")}\n\n` +
+      `الإجمالي: ${subtotal} ${CURRENCY_SYMBOL}\n\nياريت تأكيد الطلب والتوصيل. شكراً!`;
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+  };
 
   const shipping = subtotal === 0 ? 0 : subtotal >= FREE_SHIPPING_OVER ? 0 : SHIPPING_FLAT;
   const total = subtotal + shipping;
@@ -117,6 +128,16 @@ export default function Cart() {
               <Link href="/checkout">
                 <Button className="w-full btn-primary">Proceed to Checkout</Button>
               </Link>
+
+              <a
+                href={buildWhatsAppOrder()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 w-full inline-flex items-center justify-center gap-2 py-3 font-bold uppercase tracking-wide transition-colors"
+                style={{ backgroundColor: "#25D366", color: "#0a0a0a", borderRadius: "10px" }}
+              >
+                <MessageCircle className="w-5 h-5" /> Order via WhatsApp
+              </a>
 
               <Link href="/shop">
                 <Button variant="outline" className="w-full mt-3">

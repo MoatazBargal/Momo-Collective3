@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { ShoppingBag, Heart, Menu, X, User, Search } from "lucide-react";
+import { ShoppingBag, Heart, Menu, X, User, Search, Sun, Moon } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -10,11 +11,18 @@ const NAV_LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
+const SHOP_CATEGORIES = [
+  { slug: "tees", label: "T-Shirts", ar: "تيشيرتات" },
+  { slug: "denim", label: "Denim", ar: "دنيم" },
+  { slug: "hoodies", label: "Hoodies", ar: "هوديز" },
+];
+
 export default function Navbar() {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { count } = useCart();
+  const { theme, toggleTheme } = useTheme();
 
   // Home page has a full-bleed hero — navbar starts transparent there and
   // turns to glass on scroll. Every other page is glass from the top.
@@ -45,7 +53,7 @@ export default function Navbar() {
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
-        transparent ? "bg-transparent" : "glass-nav"
+        transparent ? "bg-transparent nav-transparent" : "glass-nav"
       }`}
     >
       <nav className="container">
@@ -54,7 +62,7 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 -ml-2 text-white inline-flex items-center gap-1"
+              className="md:hidden p-2 -ml-2 nav-text inline-flex items-center gap-1"
               aria-label="Menu"
               aria-expanded={mobileOpen}
             >
@@ -62,7 +70,7 @@ export default function Navbar() {
             </button>
             <Link href="/">
               <span
-                className="font-black text-2xl tracking-tight text-white cursor-pointer select-none"
+                className="font-black text-2xl tracking-tight nav-text cursor-pointer select-none"
                 style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}
               >
                 MOMO<span className="text-accent">.</span>
@@ -72,30 +80,72 @@ export default function Navbar() {
 
           {/* Center: desktop nav */}
           <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-            {NAV_LINKS.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <span
-                  className={`text-xs font-bold tracking-widest uppercase transition-colors cursor-pointer ${
-                    isActive(link.href) ? "text-accent" : "text-white hover:text-accent"
-                  }`}
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  {link.label}
-                </span>
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) =>
+              link.href === "/shop" ? (
+                <div key={link.href} className="relative group">
+                  <Link href={link.href}>
+                    <span
+                      className={`text-xs font-bold tracking-widest uppercase transition-colors cursor-pointer ${
+                        isActive(link.href) ? "text-accent" : "nav-text hover:text-accent"
+                      }`}
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
+                      {link.label}
+                    </span>
+                  </Link>
+                  {/* Mega menu */}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <div className="glass-strong p-2 min-w-[220px]" style={{ borderRadius: "14px" }}>
+                      <Link href="/shop">
+                        <div className="px-4 py-2.5 text-xs font-bold uppercase tracking-widest nav-text hover:text-accent hover:bg-white/5 cursor-pointer transition-colors" style={{ borderRadius: "8px" }}>
+                          All Products
+                        </div>
+                      </Link>
+                      {SHOP_CATEGORIES.map((cat) => (
+                        <Link key={cat.slug} href={`/shop?category=${cat.slug}`}>
+                          <div className="px-4 py-2.5 flex items-center justify-between nav-text hover:text-accent hover:bg-white/5 cursor-pointer transition-colors" style={{ borderRadius: "8px" }}>
+                            <span className="text-xs font-bold uppercase tracking-widest">{cat.label}</span>
+                            <span className="text-xs text-dim">{cat.ar}</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Link key={link.href} href={link.href}>
+                  <span
+                    className={`text-xs font-bold tracking-widest uppercase transition-colors cursor-pointer ${
+                      isActive(link.href) ? "text-accent" : "nav-text hover:text-accent"
+                    }`}
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {link.label}
+                  </span>
+                </Link>
+              )
+            )}
           </div>
 
           {/* Right: actions */}
           <div className="flex items-center gap-1">
+            {toggleTheme && (
+              <button
+                onClick={toggleTheme}
+                className="p-2 nav-icon transition-colors"
+                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            )}
             <Link href="/shop">
-              <button className="p-2 text-white hover:text-accent transition-colors" aria-label="Search">
+              <button className="p-2 nav-icon transition-colors" aria-label="Search">
                 <Search className="w-5 h-5" />
               </button>
             </Link>
             <Link href="/wishlist">
               <button
-                className={`p-2 transition-colors ${isActive("/wishlist") ? "text-accent" : "text-white hover:text-accent"}`}
+                className={`p-2 transition-colors ${isActive("/wishlist") ? "text-accent" : "nav-text hover:text-accent"}`}
                 aria-label="Wishlist"
               >
                 <Heart className="w-5 h-5" />
@@ -103,7 +153,7 @@ export default function Navbar() {
             </Link>
             <Link href="/profile">
               <button
-                className={`hidden md:inline-flex p-2 transition-colors ${isActive("/profile") ? "text-accent" : "text-white hover:text-accent"}`}
+                className={`hidden md:inline-flex p-2 transition-colors ${isActive("/profile") ? "text-accent" : "nav-text hover:text-accent"}`}
                 aria-label="Account"
               >
                 <User className="w-5 h-5" />
@@ -111,7 +161,7 @@ export default function Navbar() {
             </Link>
             <Link href="/cart">
               <button
-                className={`relative p-2 transition-colors ${isActive("/cart") ? "text-accent" : "text-white hover:text-accent"}`}
+                className={`relative p-2 transition-colors ${isActive("/cart") ? "text-accent" : "nav-text hover:text-accent"}`}
                 aria-label="Cart"
               >
                 <ShoppingBag className="w-5 h-5" />
@@ -145,7 +195,7 @@ export default function Navbar() {
                 <Link key={link.href} href={link.href}>
                   <span
                     className={`block px-5 py-3 text-sm font-bold uppercase tracking-widest transition-colors cursor-pointer ${
-                      isActive(link.href) ? "text-accent glass-accent" : "text-white hover:text-accent"
+                      isActive(link.href) ? "text-accent glass-accent" : "nav-text hover:text-accent"
                     }`}
                     style={{ fontFamily: "var(--font-display)" }}
                   >

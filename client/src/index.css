@@ -7,6 +7,22 @@
    ============================================================ */
 
 :root {
+  /* Light theme (default palette) */
+  --momo-bg: #ffffff;
+  --momo-surface: #f4f4f5;
+  --momo-surface-2: #e8e8ea;
+  --momo-border: #d8d8dc;
+  --momo-text: #0a0a0a;
+  --momo-text-dim: #6b6b70;
+  --momo-accent: #ff5722;
+  --momo-accent-hover: #e84d1c;
+  --momo-sale: #e02d2d;
+  --font-display: "Archivo", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+.dark {
+  /* Dark theme */
   --momo-bg: #0a0a0a;
   --momo-surface: #141414;
   --momo-surface-2: #1c1c1c;
@@ -16,8 +32,6 @@
   --momo-accent: #ff5722;
   --momo-accent-hover: #ff6e40;
   --momo-sale: #e02d2d;
-  --font-display: "Archivo", sans-serif;
-  --font-body: "Inter", sans-serif;
 }
 
 html {
@@ -283,11 +297,23 @@ small { font-size: 0.875rem; line-height: 1.5; }
    ============================================================ */
 
 :root {
+  /* Light theme glass — dark translucent panels on light bg */
+  --glass-bg: rgba(0, 0, 0, 0.04);
+  --glass-bg-strong: rgba(0, 0, 0, 0.06);
+  --glass-border: rgba(0, 0, 0, 0.10);
+  --glass-border-strong: rgba(0, 0, 0, 0.16);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --glass-inset: rgba(0, 0, 0, 0.03);
+}
+
+.dark {
+  /* Dark theme glass — light translucent panels on dark bg */
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-bg-strong: rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.12);
   --glass-border-strong: rgba(255, 255, 255, 0.18);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-inset: rgba(255, 255, 255, 0.08);
 }
 
 /* Base glass panel */
@@ -296,7 +322,7 @@ small { font-size: 0.875rem; line-height: 1.5; }
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-inset);
 }
 
 /* Stronger glass (for modals / focal panels) */
@@ -305,7 +331,7 @@ small { font-size: 0.875rem; line-height: 1.5; }
   backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   border: 1px solid var(--glass-border-strong);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), inset 0 1px 0 var(--glass-inset);
 }
 
 /* Subtle glass for nav / sticky bars */
@@ -392,3 +418,21 @@ small { font-size: 0.875rem; line-height: 1.5; }
   .glass, .glass-strong, .glass-nav, .glass-chip { background: rgba(20, 20, 20, 0.9); }
   .glass-accent { background: rgba(255, 87, 34, 0.18); }
 }
+
+/* Nav icon buttons — adapt to theme, but stay light over the transparent hero */
+.nav-icon {
+  color: var(--momo-text);
+}
+.nav-icon:hover {
+  color: var(--momo-accent);
+}
+/* When navbar is transparent over the dark hero, force light icons */
+.nav-transparent .nav-icon {
+  color: #f5f5f5;
+}
+.nav-transparent .nav-icon:hover {
+  color: var(--momo-accent);
+}
+
+.nav-text { color: var(--momo-text); }
+.nav-transparent .nav-text { color: #f5f5f5; }

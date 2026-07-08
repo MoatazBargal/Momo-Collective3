@@ -13,9 +13,15 @@ export default function PageLayout({ children, noFooter = false }: PageLayoutPro
   return (
     <MotionConfig reducedMotion="user">
       <div className="flex flex-col min-h-screen">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-accent focus:text-white focus:px-4 focus:py-2 focus:rounded"
+        >
+          Skip to content
+        </a>
         <AnnouncementBar />
         <Navbar />
-        <main className="flex-1">
+        <main id="main" className="flex-1">
           <PageTransition>{children}</PageTransition>
         </main>
         {!noFooter && <Footer />}

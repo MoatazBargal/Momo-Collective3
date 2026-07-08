@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { PRODUCT_CATEGORIES } from "@shared/const";
@@ -11,6 +11,13 @@ export default function Shop() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc">("newest");
+
+  // Pick up ?category=... from the URL (e.g. from the navbar mega menu)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get("category");
+    if (cat) setSelectedCategory(cat);
+  }, []);
 
   const filteredProducts = useMemo(() => {
     let filtered = products;

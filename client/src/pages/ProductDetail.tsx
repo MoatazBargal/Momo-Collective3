@@ -61,7 +61,19 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
           {/* Gallery */}
           <div className="space-y-3">
-            <div className="relative surface overflow-hidden" style={{ aspectRatio: "3/4" }}>
+            <div
+              className="relative surface overflow-hidden cursor-zoom-in group"
+              style={{ aspectRatio: "3/4" }}
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                const x = ((e.clientX - r.left) / r.width) * 100;
+                const y = ((e.clientY - r.top) / r.height) * 100;
+                const img = e.currentTarget.querySelector("img");
+                if (img) {
+                  img.style.transformOrigin = `${x}% ${y}%`;
+                }
+              }}
+            >
               {onSale && (
                 <span className="badge-sale">
                   Save {product.compareAtPrice! - product.price} {CURRENCY_SYMBOL}
@@ -70,7 +82,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
               <img
                 src={product.images[currentImageIndex]}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[2]"
                 fetchPriority="high"
               />
             </div>
@@ -183,6 +195,34 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
                   <span className="text-dim font-bold uppercase tracking-wide">Out of Stock</span>
                 )}
               </p>
+            </div>
+
+            {/* Materials & Care + Shipping (accordions) */}
+            <div className="space-y-2">
+              <details className="glass p-4 group" style={{ borderRadius: "12px" }}>
+                <summary className="flex items-center justify-between cursor-pointer font-bold text-sm uppercase tracking-wide list-none">
+                  Materials & Care
+                  <Plus className="w-4 h-4 group-open:rotate-45 transition-transform" />
+                </summary>
+                <div className="mt-3 text-sm text-white/70 space-y-1.5">
+                  <p>• Premium heavyweight fabric, built to last.</p>
+                  <p>• Machine wash cold, inside out.</p>
+                  <p>• Do not bleach. Tumble dry low.</p>
+                  <p>• Iron on reverse if needed.</p>
+                </div>
+              </details>
+              <details className="glass p-4 group" style={{ borderRadius: "12px" }}>
+                <summary className="flex items-center justify-between cursor-pointer font-bold text-sm uppercase tracking-wide list-none">
+                  Shipping & Returns
+                  <Plus className="w-4 h-4 group-open:rotate-45 transition-transform" />
+                </summary>
+                <div className="mt-3 text-sm text-white/70 space-y-1.5">
+                  <p>• Cash on delivery available across Egypt.</p>
+                  <p>• Free shipping on orders over 2,000 {CURRENCY_SYMBOL}.</p>
+                  <p>• Delivery within 2–5 business days.</p>
+                  <p>• Exchange within 14 days if unworn with tags.</p>
+                </div>
+              </details>
             </div>
           </div>
         </div>

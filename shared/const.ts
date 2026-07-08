@@ -35,3 +35,6 @@ export const SESSION_ID_STORAGE_KEY = "momo_session_id";
 // Error messages
 export const NOT_ADMIN_ERR_MSG = "Only admins can access this resource";
 export const UNAUTHED_ERR_MSG = "You must be logged in to access this resource";
+
+// Brand WhatsApp number for order-via-WhatsApp (international format, no + or spaces)
+export const WHATSAPP_NUMBER = "201000000000"; // TODO: replace with Momo's real number

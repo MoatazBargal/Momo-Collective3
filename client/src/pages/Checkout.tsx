@@ -6,6 +6,7 @@ import { Check, CreditCard, Banknote } from "lucide-react";
 import { toast } from "sonner";
 import { createOrder, createPaymentIntention, validateCoupon, type AppliedCoupon } from "@/lib/api";
 import { useCart } from "@/contexts/CartContext";
+import { EGYPT_GOVERNORATES } from "@shared/egypt";
 
 type PaymentMethod = "online" | "cod";
 
@@ -20,6 +21,7 @@ export default function Checkout() {
     email: "",
     phone: "",
     address: "",
+    governorate: "",
     city: "",
     postalCode: "",
   });
@@ -62,7 +64,7 @@ export default function Checkout() {
 
   const handleShippingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.firstName || !formData.email || !formData.address || !formData.city) {
+    if (!formData.firstName || !formData.email || !formData.address || !formData.governorate || !formData.city) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -97,7 +99,7 @@ export default function Checkout() {
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
-          city: formData.city,
+          city: `${formData.city}, ${formData.governorate}`,
           postalCode: formData.postalCode || undefined,
           country: "Egypt",
         },
@@ -165,7 +167,7 @@ export default function Checkout() {
                 <div className="flex justify-between">
                   <span className="text-dim">Delivery to:</span>
                   <span className="font-semibold">
-                    {formData.address}, {formData.city}
+                    {formData.address}, {formData.city}, {formData.governorate}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -284,13 +286,31 @@ export default function Checkout() {
 
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                  <label className="block text-sm font-semibold mb-2">City *</label>
+                  <label className="block text-sm font-semibold mb-2">Governorate *</label>
+                  <select
+                    name="governorate"
+                    value={formData.governorate}
+                    onChange={handleChange}
+                    required
+                    className="w-full bg-transparent border border-momo text-white px-3 py-2.5 focus:outline-none focus:border-accent"
+                    style={{ borderRadius: "8px" }}
+                  >
+                    <option value="" style={{ background: "#141414" }}>Select…</option>
+                    {EGYPT_GOVERNORATES.map((g) => (
+                      <option key={g.en} value={g.en} style={{ background: "#141414" }}>
+                        {g.en} — {g.ar}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Area / City *</label>
                   <Input
                     type="text"
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    placeholder="Cairo"
+                    placeholder="Nasr City, Maadi…"
                     required
                   />
                 </div>
