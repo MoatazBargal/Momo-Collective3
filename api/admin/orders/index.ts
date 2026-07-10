@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { desc, eq, and } from "drizzle-orm";
+import { desc, eq, and, sql } from "drizzle-orm";
 import { getDb, schema } from "../../../server-lib/db.js";
 import { applyCors, requireAdmin } from "../../../server-lib/utils.js";
+import { computeEarnedPoints } from "../../../shared/loyalty.js";
 
 const VALID_STATUSES = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
 
@@ -14,7 +15,7 @@ const VALID_STATUSES = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancell
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (applyCors(req, res)) return;
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
 
   const db = getDb();
   const hasId = req.query.id !== undefined;
@@ -50,9 +51,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return;
       }
       try {
-        // Read current status first (to detect a transition INTO Cancelled)
+        // Read current status first (to detect a transition INTO Cancelled/Delivered)
         const [current] = await db
-          .select({ status: schema.orders.status })
+          .select({ status: schema.orders.status, userId: schema.orders.userId, total: schema.orders.total })
           .from(schema.orders)
           .where(eq(schema.orders.id, id));
         if (!current) {
@@ -91,6 +92,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 .set({ stock: variant.stock + it.quantity, updatedAt: new Date() })
                 .where(eq(schema.productVariants.id, variant.id));
             }
+          }
+        }
+
+        // Award loyalty points on first transition into Delivered (linked accounts only)
+        if (status === "Delivered" && current.status !== "Delivered" && current.userId) {
+          const points = computeEarnedPoints(Number(current.total));
+          if (points > 0) {
+            await db.insert(schema.loyaltyTransactions).values({
+              userId: current.userId,
+              type: "earn",
+              points,
+              orderId: id,
+              note: `Order #${id} delivered`,
+            });
+            await db
+              .update(schema.users)
+              .set({ loyaltyPoints: sql`${schema.users.loyaltyPoints} + ${points}` })
+              .where(eq(schema.users.id, current.userId));
           }
         }
 

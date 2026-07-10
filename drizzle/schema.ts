@@ -12,7 +12,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 /* ---------- Enums ---------- */
-export const roleEnum = pgEnum("role", ["user", "admin"]);
+export const roleEnum = pgEnum("role", ["user", "support", "manager", "super_admin"]);
 export const categoryEnum = pgEnum("category", ["tees", "denim", "hoodies"]);
 export const sizeEnum = pgEnum("size", ["XS", "S", "M", "L", "XL", "XXL"]);
 export const orderStatusEnum = pgEnum("order_status", [
@@ -30,14 +30,17 @@ export const paymentStatusEnum = pgEnum("payment_status", ["Unpaid", "Paid", "Re
  */
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  openId: varchar("open_id", { length: 64 }).notNull().unique(),
-  name: text("name"),
-  email: varchar("email", { length: 320 }),
-  loginMethod: varchar("login_method", { length: 64 }),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  phone: varchar("phone", { length: 30 }),
   role: roleEnum("role").default("user").notNull(),
+  // For staff accounts (support/manager/super_admin): allows disabling access without deleting.
+  isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  lastSignedIn: timestamp("last_signed_in").defaultNow().notNull(),
+  lastSignedIn: timestamp("last_signed_in"),
+  loyaltyPoints: integer("loyalty_points").default(0).notNull(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -103,6 +106,7 @@ export const orders = pgTable("orders", {
   shippingPhone: varchar("shipping_phone", { length: 20 }).notNull(),
   shippingAddress: text("shipping_address").notNull(),
   shippingCity: varchar("shipping_city", { length: 100 }).notNull(),
+  shippingGovernorate: varchar("shipping_governorate", { length: 100 }),
   shippingPostalCode: varchar("shipping_postal_code", { length: 20 }),
   shippingCountry: varchar("shipping_country", { length: 100 }).default("Egypt").notNull(),
 
@@ -189,3 +193,18 @@ export const abandonedCarts = pgTable("abandoned_carts", {
 
 export type AbandonedCart = typeof abandonedCarts.$inferSelect;
 export type InsertAbandonedCart = typeof abandonedCarts.$inferInsert;
+
+/* ---------- Loyalty ---------- */
+export const loyaltyTypeEnum = pgEnum("loyalty_type", ["earn", "redeem"]);
+
+export const loyaltyTransactions = pgTable("loyalty_transactions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  type: loyaltyTypeEnum("type").notNull(),
+  points: integer("points").notNull(), // always positive; sign implied by type
+  orderId: integer("order_id"),
+  note: varchar("note", { length: 200 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type LoyaltyTransaction = typeof loyaltyTransactions.$inferSelect;

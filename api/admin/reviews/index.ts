@@ -10,7 +10,7 @@ import { applyCors, requireAdmin } from "../../../server-lib/utils.js";
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (applyCors(req, res)) return;
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
 
   const db = getDb();
   const hasId = req.query.id !== undefined;

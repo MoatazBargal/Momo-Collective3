@@ -1,14 +1,18 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [, setLocation] = useLocation();
+  const { login, signup } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
     name: "",
+    phone: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,6 +29,10 @@ export default function Auth() {
         toast.error("Please fill in all fields");
         return;
       }
+      if (formData.password.length < 8) {
+        toast.error("Password must be at least 8 characters");
+        return;
+      }
       if (formData.password !== formData.confirmPassword) {
         toast.error("Passwords do not match");
         return;
@@ -38,11 +46,21 @@ export default function Auth() {
 
     setIsSubmitting(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success(mode === "login" ? "Logged in successfully!" : "Account created successfully!");
-      setFormData({ email: "", password: "", confirmPassword: "", name: "" });
-    } catch {
-      toast.error("An error occurred. Please try again.");
+      if (mode === "signup") {
+        await signup({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone || undefined,
+        });
+        toast.success("Account created — welcome!");
+      } else {
+        await login({ email: formData.email, password: formData.password });
+        toast.success("Logged in successfully!");
+      }
+      setLocation("/profile");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -58,7 +76,7 @@ export default function Auth() {
         <div className="text-center mb-10">
           <Link href="/">
             <span
-              className="font-black text-4xl tracking-tight text-white cursor-pointer"
+              className="font-black text-4xl tracking-tight text-[color:var(--momo-text)] cursor-pointer"
               style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}
             >
               MOMO<span className="text-accent">.</span>
@@ -106,6 +124,21 @@ export default function Auth() {
             />
           </div>
 
+          {mode === "signup" && (
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-dim">Phone (optional)</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="01xxxxxxxxx"
+                className={inputClass}
+                style={{ borderRadius: 0 }}
+              />
+            </div>
+          )}
+
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-dim">Password</label>
             <input
@@ -146,7 +179,7 @@ export default function Auth() {
           <button
             onClick={() => {
               setMode(mode === "login" ? "signup" : "login");
-              setFormData({ email: "", password: "", confirmPassword: "", name: "" });
+              setFormData({ email: "", password: "", confirmPassword: "", name: "", phone: "" });
             }}
             className="text-accent font-bold uppercase tracking-widest text-sm hover:underline"
             style={{ fontFamily: "var(--font-display)" }}
@@ -157,7 +190,7 @@ export default function Auth() {
 
         <div className="mt-10 pt-8 border-t border-momo text-center">
           <Link href="/">
-            <span className="text-dim text-sm hover:text-white transition-colors cursor-pointer">
+            <span className="text-dim text-sm hover:text-[color:var(--momo-text)] transition-colors cursor-pointer">
               ← Back to Home
             </span>
           </Link>

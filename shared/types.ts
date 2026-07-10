@@ -96,17 +96,8 @@ export interface AddressData {
   updatedAt: Date;
 }
 
-export interface UserData {
-  id: number;
-  openId: string;
-  name: string | null;
-  email: string | null;
-  loginMethod: string | null;
-  role: "user" | "admin";
-  createdAt: Date;
-  updatedAt: Date;
-  lastSignedIn: Date;
-}
+// Note: the authoritative User type now lives in drizzle/schema.ts (User, InsertUser),
+// generated from the real `users` table used by the auth system.
 
 // Cart item with product and variant details
 export interface CartItemWithDetails extends CartItemData {

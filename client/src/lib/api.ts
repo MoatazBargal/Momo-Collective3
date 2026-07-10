@@ -210,12 +210,22 @@ export type RecentOrder = {
   createdAt: string;
 };
 
+export type GovernorateRevenue = { governorate: string | null; revenue: string; orders: number };
+export type CustomerRetention = {
+  repeatCustomers: number;
+  totalCustomers: number;
+  newThisMonth: number;
+  returningThisMonth: number;
+};
+
 export type AdminOverview = {
   kpis: OverviewKpis;
   revenueSeries: RevenuePoint[];
   recentOrders: RecentOrder[];
   topProducts: TopProduct[];
   lowStock: LowStockItem[];
+  revenueByGovernorate: GovernorateRevenue[];
+  customerRetention: CustomerRetention;
 };
 
 export function fetchAdminOverview(token: string) {
@@ -231,7 +241,7 @@ export type AppliedCoupon = {
 };
 
 export function validateCoupon(code: string, subtotal: number) {
-  return apiFetch<AppliedCoupon>("/coupons/validate", {
+  return apiFetch<AppliedCoupon>("/admin/coupons?validate=1", {
     method: "POST",
     body: JSON.stringify({ code, subtotal }),
   });
@@ -408,5 +418,104 @@ export function updateAbandonedCart(token: string, id: number, status: string) {
     method: "PATCH",
     headers: adminHeaders(token),
     body: JSON.stringify({ status }),
+  });
+}
+
+/* ---------- Customer Auth ---------- */
+export type CustomerUser = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  role: "user" | "support" | "manager" | "super_admin";
+  loyaltyPoints?: number;
+};
+
+export function signup(payload: { name: string; email: string; password: string; phone?: string }) {
+  return apiFetch<{ user: CustomerUser }>("/auth?action=signup", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function login(payload: { email: string; password: string }) {
+  return apiFetch<{ user: CustomerUser }>("/auth?action=login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function logout() {
+  return apiFetch<{ ok: boolean }>("/auth?action=logout", { method: "POST" });
+}
+
+export function fetchCurrentUser() {
+  return apiFetch<{ user: CustomerUser }>("/auth");
+}
+
+/* ---------- My Orders (authenticated customer) ---------- */
+export type MyOrder = {
+  id: number;
+  orderNumber: string;
+  status: string;
+  total: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  createdAt: string;
+  shippingCity: string;
+};
+
+export function fetchMyOrders() {
+  return apiFetch<{ orders: MyOrder[] }>("/orders?mine=1");
+}
+
+/* ---------- Loyalty ---------- */
+export type LoyaltyTransaction = {
+  id: number;
+  type: "earn" | "redeem";
+  points: number;
+  note: string | null;
+  createdAt: string;
+};
+
+export function fetchLoyaltyHistory() {
+  return apiFetch<{ transactions: LoyaltyTransaction[] }>("/auth?action=loyalty-history");
+}
+
+export function redeemPoints(points: number) {
+  return apiFetch<{ coupon: string; value: number }>("/auth?action=redeem-points", {
+    method: "POST",
+    body: JSON.stringify({ points }),
+  });
+}
+
+/* ---------- Staff Management (super_admin only) ---------- */
+export type StaffMember = {
+  id: number;
+  name: string;
+  email: string;
+  role: "support" | "manager" | "super_admin";
+  isActive: boolean;
+  createdAt: string;
+  lastSignedIn: string | null;
+};
+
+export function fetchStaffList(token: string) {
+  return apiFetch<{ staff: StaffMember[] }>("/auth?action=staff-list", { headers: adminHeaders(token) });
+}
+
+export function createStaff(token: string, payload: { name: string; email: string; password: string; role: string }) {
+  return apiFetch<{ staff: StaffMember }>("/auth?action=staff-create", {
+    method: "POST",
+    headers: adminHeaders(token),
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateStaff(token: string, id: number, payload: { role?: string; isActive?: boolean }) {
+  return apiFetch<{ ok: boolean }>("/auth?action=staff-update", {
+    method: "POST",
+    headers: adminHeaders(token),
+    body: JSON.stringify({ id, ...payload }),
   });
 }

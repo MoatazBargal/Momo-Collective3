@@ -1,13 +1,36 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, desc } from "drizzle-orm";
 import { getDb, schema } from "../../server-lib/db.js";
 import { sendOrderEmail } from "../../server-lib/email.js";
 import { generateOrderNumber, applyCors } from "../../server-lib/utils.js";
 import { createOrderSchema, computeTotals } from "../../shared/orderTypes.js";
 import { computeDiscount } from "../../shared/couponTypes.js";
+import { getSession } from "../../server-lib/auth.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (applyCors(req, res)) return;
+
+  // --- Authenticated: GET /api/orders?mine=1 — the logged-in customer's own orders ---
+  if (req.method === "GET" && req.query.mine !== undefined) {
+    const session = await getSession(req);
+    if (!session) {
+      res.status(401).json({ error: "Not signed in" });
+      return;
+    }
+    try {
+      const db = getDb();
+      const rows = await db
+        .select()
+        .from(schema.orders)
+        .where(eq(schema.orders.userId, session.userId))
+        .orderBy(desc(schema.orders.createdAt));
+      res.status(200).json({ orders: rows });
+    } catch (err) {
+      console.error("[orders mine] failed:", err);
+      res.status(500).json({ error: "Failed to load your orders" });
+    }
+    return;
+  }
 
   // --- Public order tracking: GET /api/orders?track=<orderNumber>&phone=<phone> ---
   if (req.method === "GET") {
@@ -74,6 +97,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
   const input = parsed.data;
+
+  // If the shopper is logged in, link this order to their account (best-effort, optional)
+  const session = await getSession(req);
 
   // Server-side total computation (never trust client totals)
   const { subtotal, shippingCost } = computeTotals(input.items, input.shipping.governorate);
@@ -149,6 +175,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .insert(schema.orders)
       .values({
         orderNumber,
+        userId: session?.userId ?? null,
         status: "Pending",
         subtotal: subtotal.toFixed(2),
         shippingCost: shippingCost.toFixed(2),
@@ -163,6 +190,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         shippingPhone: input.shipping.phone,
         shippingAddress: input.shipping.address,
         shippingCity: input.shipping.city,
+        shippingGovernorate: input.shipping.governorate,
         shippingPostalCode: input.shipping.postalCode,
         shippingCountry: input.shipping.country,
         notes: input.notes,

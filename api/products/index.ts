@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { desc, eq } from "drizzle-orm";
 import { getDb, schema } from "../../server-lib/db.js";
-import { applyCors, requireAdmin } from "../../server-lib/utils.js";
+import { applyCors, requireAdmin, requireManager } from "../../server-lib/utils.js";
 import { productInputSchema, productUpdateSchema } from "../../shared/productTypes.js";
 
 /**
@@ -38,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
     if (req.method === "PATCH") {
-      if (!requireAdmin(req, res)) return;
+      if (!(await requireAdmin(req, res))) return;
       const variantId = Number(req.body?.variantId);
       const stock = Number(req.body?.stock);
       if (!Number.isInteger(variantId) || !Number.isInteger(stock) || stock < 0) {
@@ -88,7 +88,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "PATCH") {
-      if (!requireAdmin(req, res)) return;
+      if (!(await requireManager(req, res))) return;
       const parsed = productUpdateSchema.safeParse(req.body);
       if (!parsed.success) {
         res.status(400).json({ error: "Invalid update", details: parsed.error.flatten() });
@@ -120,7 +120,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "DELETE") {
-      if (!requireAdmin(req, res)) return;
+      if (!(await requireManager(req, res))) return;
       try {
         await db
           .update(schema.products)
@@ -158,7 +158,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === "POST") {
-    if (!requireAdmin(req, res)) return;
+    if (!(await requireManager(req, res))) return;
     const parsed = productInputSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: "Invalid product", details: parsed.error.flatten() });

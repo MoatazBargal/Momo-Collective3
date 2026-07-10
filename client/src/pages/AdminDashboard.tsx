@@ -12,16 +12,20 @@ import {
   Tag,
   Star,
   ShoppingCart,
+  Users,
 } from "lucide-react";
 import {
   fetchAdminOrders,
   updateOrderStatus,
+  login as apiLogin,
+  logout as apiLogout,
   type AdminOrder,
 } from "@/lib/api";
 import AdminProducts from "@/components/admin/AdminProducts";
 import AdminCoupons from "@/components/admin/AdminCoupons";
 import AdminReviews from "@/components/admin/AdminReviews";
 import AdminAbandonedCarts from "@/components/admin/AdminAbandonedCarts";
+import AdminStaff from "@/components/admin/AdminStaff";
 import AdminOrderDetailModal from "@/components/admin/AdminOrderDetailModal";
 const AdminOverview = lazy(() => import("@/components/admin/AdminOverview"));
 
@@ -35,18 +39,26 @@ const NEXT_STATUS: Record<string, string[]> = {
 };
 
 const TOKEN_KEY = "momo_admin_token";
+const ROLE_KEY = "momo_admin_role";
+const SESSION_TOKEN = "SESSION"; // sentinel meaning "authenticated via staff session cookie"
 
 export default function AdminDashboard() {
   const [token, setToken] = useState<string>(() =>
     typeof window !== "undefined" ? sessionStorage.getItem(TOKEN_KEY) || "" : ""
   );
+  const [staffRole, setStaffRole] = useState<string>(() =>
+    typeof window !== "undefined" ? sessionStorage.getItem(ROLE_KEY) || "" : ""
+  );
+  const [loginMode, setLoginMode] = useState<"master" | "staff">("master");
+  const [staffEmail, setStaffEmail] = useState("");
+  const [staffPassword, setStaffPassword] = useState("");
   const [tokenInput, setTokenInput] = useState("");
   const [authed, setAuthed] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [filter, setFilter] = useState("All");
-  const [tab, setTab] = useState<"overview" | "orders" | "products" | "coupons" | "reviews" | "carts">("overview");
+  const [tab, setTab] = useState<"overview" | "orders" | "products" | "coupons" | "reviews" | "carts" | "staff">("overview");
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const load = useCallback(
@@ -86,12 +98,41 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (!tokenInput.trim()) return;
     setToken(tokenInput.trim());
+    setStaffRole("");
+    sessionStorage.removeItem(ROLE_KEY);
     load(tokenInput.trim(), filter);
   };
 
+  const [staffLoginLoading, setStaffLoginLoading] = useState(false);
+  const handleStaffLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!staffEmail.trim() || !staffPassword) return;
+    setStaffLoginLoading(true);
+    try {
+      const { user } = await apiLogin({ email: staffEmail.trim(), password: staffPassword });
+      if (user.role === "user") {
+        toast.error("This account does not have staff access");
+        return;
+      }
+      setToken(SESSION_TOKEN);
+      setStaffRole(user.role);
+      sessionStorage.setItem(ROLE_KEY, user.role);
+      load(SESSION_TOKEN, filter);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Sign in failed");
+    } finally {
+      setStaffLoginLoading(false);
+    }
+  };
+
   const handleLogout = () => {
+    if (token === SESSION_TOKEN) {
+      apiLogout().catch(() => {});
+    }
     sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(ROLE_KEY);
     setToken("");
+    setStaffRole("");
     setAuthed(false);
     setOrders([]);
   };
@@ -119,19 +160,68 @@ export default function AdminDashboard() {
             </Link>
             <p className="text-dim text-sm mt-2 uppercase tracking-widest">Admin Access</p>
           </div>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <input
-              type="password"
-              value={tokenInput}
-              onChange={(e) => setTokenInput(e.target.value)}
-              placeholder="Admin token"
-              className="w-full bg-transparent border border-momo text-white px-4 py-3 placeholder:text-dim focus:outline-none focus:border-accent"
-              style={{ borderRadius: 0 }}
-            />
-            <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-60">
-              {loading ? "Verifying..." : "Sign In"}
+
+          {/* Login mode toggle */}
+          <div className="flex gap-2 mb-6">
+            <button
+              type="button"
+              onClick={() => setLoginMode("master")}
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest transition-colors ${
+                loginMode === "master" ? "bg-accent text-white" : "glass-chip text-white"
+              }`}
+              style={{ borderRadius: "8px" }}
+            >
+              Master Key
             </button>
-          </form>
+            <button
+              type="button"
+              onClick={() => setLoginMode("staff")}
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-widest transition-colors ${
+                loginMode === "staff" ? "bg-accent text-white" : "glass-chip text-white"
+              }`}
+              style={{ borderRadius: "8px" }}
+            >
+              Staff Login
+            </button>
+          </div>
+
+          {loginMode === "master" ? (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <input
+                type="password"
+                value={tokenInput}
+                onChange={(e) => setTokenInput(e.target.value)}
+                placeholder="Admin token"
+                className="w-full bg-transparent border border-momo text-white px-4 py-3 placeholder:text-dim focus:outline-none focus:border-accent"
+                style={{ borderRadius: 0 }}
+              />
+              <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-60">
+                {loading ? "Verifying..." : "Sign In"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleStaffLogin} className="space-y-4">
+              <input
+                type="email"
+                value={staffEmail}
+                onChange={(e) => setStaffEmail(e.target.value)}
+                placeholder="you@momocollective.com"
+                className="w-full bg-transparent border border-momo text-white px-4 py-3 placeholder:text-dim focus:outline-none focus:border-accent"
+                style={{ borderRadius: 0 }}
+              />
+              <input
+                type="password"
+                value={staffPassword}
+                onChange={(e) => setStaffPassword(e.target.value)}
+                placeholder="Password"
+                className="w-full bg-transparent border border-momo text-white px-4 py-3 placeholder:text-dim focus:outline-none focus:border-accent"
+                style={{ borderRadius: 0 }}
+              />
+              <button type="submit" disabled={staffLoginLoading} className="btn-primary w-full disabled:opacity-60">
+                {staffLoginLoading ? "Verifying..." : "Sign In"}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     );
@@ -145,7 +235,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <span className="eyebrow block mb-1">Dashboard</span>
-            <h1 className="heading-section">{tab === "overview" ? "Overview" : tab === "orders" ? "Orders" : tab === "products" ? "Products" : tab === "coupons" ? "Coupons" : tab === "reviews" ? "Reviews" : "Abandoned Carts"}</h1>
+            <h1 className="heading-section">{tab === "overview" ? "Overview" : tab === "orders" ? "Orders" : tab === "products" ? "Products" : tab === "coupons" ? "Coupons" : tab === "reviews" ? "Reviews" : tab === "carts" ? "Abandoned Carts" : "Staff"}</h1>
           </div>
           <div className="flex gap-2">
             {tab === "orders" && (
@@ -215,6 +305,17 @@ export default function AdminDashboard() {
           >
             <ShoppingCart className="w-4 h-4" /> Carts
           </button>
+          {(token !== SESSION_TOKEN || staffRole === "super_admin") && (
+            <button
+              onClick={() => setTab("staff")}
+              className={`px-5 py-2.5 text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2 transition-colors ${
+                tab === "staff" ? "bg-accent text-white" : "glass-chip text-white"
+              }`}
+              style={{ fontFamily: "var(--font-display)", borderRadius: "10px" }}
+            >
+              <Users className="w-4 h-4" /> Staff
+            </button>
+          )}
         </div>
 
         {tab === "overview" && (
@@ -230,6 +331,8 @@ export default function AdminDashboard() {
         {tab === "reviews" && <AdminReviews token={token} />}
 
         {tab === "carts" && <AdminAbandonedCarts token={token} />}
+
+        {tab === "staff" && <AdminStaff token={token} />}
 
         {tab === "orders" && (
         <>

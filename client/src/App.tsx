@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { CartProvider } from "./contexts/CartContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import PageLayout from "./components/PageLayout";
 import LoadingScreen from "./components/LoadingScreen";
 
@@ -129,13 +130,15 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" switchable>
         <LanguageProvider>
-          <CartProvider>
-            <TooltipProvider>
-              <LoadingScreen />
-              <Toaster />
-              <Router />
-            </TooltipProvider>
-          </CartProvider>
+          <AuthProvider>
+            <CartProvider>
+              <TooltipProvider>
+                <LoadingScreen />
+                <Toaster />
+                <Router />
+              </TooltipProvider>
+            </CartProvider>
+          </AuthProvider>
         </LanguageProvider>
       </ThemeProvider>
     </ErrorBoundary>

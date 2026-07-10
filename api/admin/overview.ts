@@ -12,7 +12,7 @@ const LOW_STOCK_THRESHOLD = 5;
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (applyCors(req, res)) return;
-  if (!requireAdmin(req, res)) return;
+  if (!(await requireAdmin(req, res))) return;
   if (req.method !== "GET") {
     res.status(405).json({ error: "Method not allowed" });
     return;
@@ -123,6 +123,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .select({ count: sql<number>`count(distinct ${schema.orders.shippingPhone})::int` })
       .from(schema.orders);
 
+    // --- Revenue by governorate (geography) ---
+    const revenueByGovernorate = await db
+      .select({
+        governorate: schema.orders.shippingGovernorate,
+        revenue: sql<string>`coalesce(sum(case when ${schema.orders.status} <> 'Cancelled' then ${schema.orders.total} else 0 end), 0)`,
+        orders: sql<number>`count(*)::int`,
+      })
+      .from(schema.orders)
+      .where(sql`${schema.orders.shippingGovernorate} is not null`)
+      .groupBy(schema.orders.shippingGovernorate)
+      .orderBy(sql`sum(case when ${schema.orders.status} <> 'Cancelled' then ${schema.orders.total} else 0 end) desc`)
+      .limit(8);
+
+    // --- Customer retention: repeat-purchase rate ---
+    const repeatRateResult = await db.execute(sql`
+      select
+        count(*) filter (where cnt > 1)::int as repeat_customers,
+        count(*)::int as total_customers
+      from (
+        select shipping_phone, count(*) as cnt
+        from orders
+        where status <> 'Cancelled'
+        group by shipping_phone
+      ) t
+    `);
+    const repeatRow = (repeatRateResult as unknown as { rows: { repeat_customers: number; total_customers: number }[] }).rows[0];
+
+    // --- New vs returning customers this month ---
+    const monthlyResult = await db.execute(sql`
+      with first_orders as (
+        select shipping_phone, min(created_at) as first_at
+        from orders
+        where status <> 'Cancelled'
+        group by shipping_phone
+      )
+      select
+        count(*) filter (where first_at >= date_trunc('month', now()))::int as new_this_month,
+        count(*) filter (
+          where first_at < date_trunc('month', now())
+          and shipping_phone in (
+            select shipping_phone from orders
+            where status <> 'Cancelled' and created_at >= date_trunc('month', now())
+          )
+        )::int as returning_this_month
+      from first_orders
+    `);
+    const monthlyRow = (monthlyResult as unknown as { rows: { new_this_month: number; returning_this_month: number }[] }).rows[0];
+
     res.status(200).json({
       kpis: {
         totalRevenue: totals?.totalRevenue ?? "0",
@@ -139,6 +187,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       recentOrders,
       topProducts,
       lowStock,
+      revenueByGovernorate,
+      customerRetention: {
+        repeatCustomers: repeatRow?.repeat_customers ?? 0,
+        totalCustomers: repeatRow?.total_customers ?? 0,
+        newThisMonth: monthlyRow?.new_this_month ?? 0,
+        returningThisMonth: monthlyRow?.returning_this_month ?? 0,
+      },
     });
   } catch (err) {
     console.error("[admin/overview] failed:", err);

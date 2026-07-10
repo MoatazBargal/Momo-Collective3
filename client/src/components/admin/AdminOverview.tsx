@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
   TrendingUp, ShoppingBag, Clock, DollarSign,
-  Package, Users, AlertTriangle, BarChart3,
+  Package, Users, AlertTriangle, BarChart3, MapPin,
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -41,7 +41,7 @@ export default function AdminOverview({ token, onOpenOrder }: Props) {
     );
   }
 
-  const { kpis, revenueSeries, recentOrders, topProducts, lowStock } = data;
+  const { kpis, revenueSeries, recentOrders, topProducts, lowStock, revenueByGovernorate, customerRetention } = data;
   const egp = (v: string | number) => `${Number(v).toLocaleString()} LE`;
 
   return (
@@ -167,6 +167,66 @@ export default function AdminOverview({ token, onOpenOrder }: Props) {
           </div>
         </div>
       )}
+
+      {/* Customer retention + Geography */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glass p-6" style={{ borderRadius: "16px" }}>
+          <div className="flex items-center gap-2 mb-4">
+            <Users className="w-5 h-5 text-accent" />
+            <h3 className="font-bold" style={{ fontFamily: "var(--font-display)" }}>Customer Retention</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)" }}>
+                {customerRetention.totalCustomers > 0
+                  ? `${Math.round((customerRetention.repeatCustomers / customerRetention.totalCustomers) * 100)}%`
+                  : "—"}
+              </p>
+              <p className="text-dim text-xs uppercase tracking-widest mt-1">Repeat rate</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)" }}>{customerRetention.totalCustomers}</p>
+              <p className="text-dim text-xs uppercase tracking-widest mt-1">Total customers</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-accent" style={{ fontFamily: "var(--font-display)" }}>{customerRetention.newThisMonth}</p>
+              <p className="text-dim text-xs uppercase tracking-widest mt-1">New this month</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold" style={{ fontFamily: "var(--font-display)" }}>{customerRetention.returningThisMonth}</p>
+              <p className="text-dim text-xs uppercase tracking-widest mt-1">Returning this month</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="glass p-6" style={{ borderRadius: "16px" }}>
+          <div className="flex items-center gap-2 mb-4">
+            <MapPin className="w-5 h-5 text-accent" />
+            <h3 className="font-bold" style={{ fontFamily: "var(--font-display)" }}>Revenue by Governorate</h3>
+          </div>
+          {revenueByGovernorate.length === 0 ? (
+            <p className="text-dim text-sm">No governorate data yet — appears as new orders come in.</p>
+          ) : (
+            <div className="space-y-3">
+              {revenueByGovernorate.map((g, i) => (
+                <div key={g.governorate ?? i} className="flex items-center gap-3">
+                  <span className="text-dim font-bold w-5">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate">{g.governorate || "Unknown"}</p>
+                    <div className="h-1.5 mt-1 rounded-full bg-white/10 overflow-hidden">
+                      <div
+                        className="h-full bg-accent rounded-full"
+                        style={{ width: `${(Number(g.revenue) / Number(revenueByGovernorate[0].revenue || 1)) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                  <span className="text-sm text-dim whitespace-nowrap">{egp(g.revenue)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
