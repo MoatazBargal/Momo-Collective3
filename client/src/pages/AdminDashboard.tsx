@@ -109,7 +109,7 @@ export default function AdminDashboard() {
   // ---- Login gate ----
   if (!authed) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6 glow-field" style={{ backgroundColor: "var(--momo-bg)" }}>
+      <div className="dark min-h-screen flex items-center justify-center px-6 glow-field" style={{ backgroundColor: "var(--momo-bg)" }}>
         <div className="w-full max-w-sm glass-strong p-8" style={{ borderRadius: "16px" }}>
           <div className="text-center mb-8">
             <Link href="/">
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
 
   // ---- Dashboard ----
   return (
-    <div className="min-h-screen glow-field overflow-hidden" style={{ backgroundColor: "var(--momo-bg)" }}>
+    <div className="dark min-h-screen glow-field overflow-hidden" style={{ backgroundColor: "var(--momo-bg)" }}>
       <div className="container section-padding-sm">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

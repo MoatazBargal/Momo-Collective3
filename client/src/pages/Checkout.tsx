@@ -8,11 +8,13 @@ import { createOrder, createPaymentIntention, validateCoupon, type AppliedCoupon
 import { useCart } from "@/contexts/CartContext";
 import { EGYPT_GOVERNORATES } from "@shared/egypt";
 import { computeShipping } from "@shared/shipping";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type PaymentMethod = "online" | "cod";
 
 export default function Checkout() {
   const { items: cartItems, clearCart } = useCart();
+  const { t } = useLanguage();
   const [step, setStep] = useState<"shipping" | "payment" | "confirmation">("shipping");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [orderNumber, setOrderNumber] = useState<string>("");
@@ -152,8 +154,8 @@ export default function Checkout() {
             <div className="w-16 h-16 bg-accent text-white rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="w-8 h-8" />
             </div>
-            <h1 className="heading-section mb-4">Order Confirmed!</h1>
-            <p className="text-lg text-dim mb-2">Thank you for your purchase.</p>
+            <h1 className="heading-section mb-4">{t("checkout.orderConfirmed")}</h1>
+            <p className="text-lg text-dim mb-2">{t("checkout.thankYou")}</p>
             <p className="text-dim mb-8">
               Your order has been placed and will be delivered soon. We'll contact you at{" "}
               <strong>{formData.phone}</strong> with delivery details.
@@ -187,10 +189,10 @@ export default function Checkout() {
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/track">
-                <Button className="btn-primary">Track Your Order</Button>
+                <Button className="btn-primary">{t("checkout.trackOrder")}</Button>
               </Link>
               <Link href="/">
-                <Button variant="outline">Back to Home</Button>
+                <Button variant="outline">{t("checkout.backHome")}</Button>
               </Link>
             </div>
           </div>
@@ -202,7 +204,7 @@ export default function Checkout() {
   return (
     <div style={{ backgroundColor: "var(--momo-bg)" }}>
       <div className="section-padding container max-w-2xl glow-field overflow-hidden">
-        <h1 className="heading-section mb-8">Checkout</h1>
+        <h1 className="heading-section mb-8">{t("checkout.title")}</h1>
 
         {/* Progress Indicator */}
         <div className="flex gap-4 mb-12">
@@ -228,11 +230,11 @@ export default function Checkout() {
         {step === "shipping" && (
           <form onSubmit={handleShippingSubmit} className="space-y-6">
             <div>
-              <h2 className="heading-subsection mb-6">Shipping Address</h2>
+              <h2 className="heading-subsection mb-6">{t("checkout.shippingAddress")}</h2>
 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2">First Name *</label>
+                  <label className="block text-sm font-semibold mb-2">{t("checkout.firstName")} *</label>
                   <Input
                     type="text"
                     name="firstName"
@@ -243,7 +245,7 @@ export default function Checkout() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Last Name *</label>
+                  <label className="block text-sm font-semibold mb-2">{t("checkout.lastName")} *</label>
                   <Input
                     type="text"
                     name="lastName"
@@ -256,7 +258,7 @@ export default function Checkout() {
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-semibold mb-2">Email *</label>
+                <label className="block text-sm font-semibold mb-2">{t("checkout.email")} *</label>
                 <Input
                   type="email"
                   name="email"
@@ -268,7 +270,7 @@ export default function Checkout() {
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-semibold mb-2">Phone *</label>
+                <label className="block text-sm font-semibold mb-2">{t("checkout.phone")} *</label>
                 <Input
                   type="tel"
                   name="phone"
@@ -280,7 +282,7 @@ export default function Checkout() {
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-semibold mb-2">Address *</label>
+                <label className="block text-sm font-semibold mb-2">{t("checkout.address")} *</label>
                 <Input
                   type="text"
                   name="address"
@@ -293,7 +295,7 @@ export default function Checkout() {
 
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Governorate *</label>
+                  <label className="block text-sm font-semibold mb-2">{t("checkout.governorate")} *</label>
                   <select
                     name="governorate"
                     value={formData.governorate}
@@ -302,7 +304,7 @@ export default function Checkout() {
                     className="w-full bg-transparent border border-momo text-[color:var(--momo-text)] px-3 py-2.5 focus:outline-none focus:border-accent"
                     style={{ borderRadius: "8px" }}
                   >
-                    <option value="" style={{ background: "var(--momo-surface)", color: "var(--momo-text)" }}>Select…</option>
+                    <option value="" style={{ background: "var(--momo-surface)", color: "var(--momo-text)" }}>{t("checkout.selectGov")}</option>
                     {EGYPT_GOVERNORATES.map((g) => (
                       <option key={g.en} value={g.en} style={{ background: "var(--momo-surface)", color: "var(--momo-text)" }}>
                         {g.en} — {g.ar}
@@ -311,7 +313,7 @@ export default function Checkout() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Area / City *</label>
+                  <label className="block text-sm font-semibold mb-2">{t("checkout.areaCity")} *</label>
                   <Input
                     type="text"
                     name="city"
@@ -322,7 +324,7 @@ export default function Checkout() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Postal Code</label>
+                  <label className="block text-sm font-semibold mb-2">{t("checkout.postalCode")}</label>
                   <Input
                     type="text"
                     name="postalCode"
@@ -334,7 +336,7 @@ export default function Checkout() {
               </div>
 
               <Button type="submit" className="w-full btn-primary">
-                Continue to Payment
+                {t("checkout.continuePayment")}
               </Button>
             </div>
           </form>
@@ -343,7 +345,7 @@ export default function Checkout() {
         {step === "payment" && (
           <form onSubmit={handlePaymentSubmit} className="space-y-6">
             <div>
-              <h2 className="heading-subsection mb-6">Payment Method</h2>
+              <h2 className="heading-subsection mb-6">{t("checkout.paymentMethod")}</h2>
 
               {/* Payment method selector */}
               <div className="space-y-3 mb-6">
@@ -363,7 +365,7 @@ export default function Checkout() {
                     </div>
                     <Banknote className="w-5 h-5 text-accent" />
                     <div>
-                      <h3 className="font-bold">Cash on Delivery</h3>
+                      <h3 className="font-bold">{t("checkout.cod")}</h3>
                       <p className="text-dim text-sm">Pay when your order arrives.</p>
                     </div>
                   </div>
@@ -385,7 +387,7 @@ export default function Checkout() {
                     </div>
                     <CreditCard className="w-5 h-5 text-accent" />
                     <div>
-                      <h3 className="font-bold">Pay Online</h3>
+                      <h3 className="font-bold">{t("checkout.online")}</h3>
                       <p className="text-dim text-sm">Card, Meeza, Vodafone Cash, InstaPay.</p>
                     </div>
                   </div>
@@ -393,7 +395,7 @@ export default function Checkout() {
               </div>
 
               <div className="glass p-6 mb-6" style={{ borderRadius: "16px" }}>
-                <h3 className="font-bold mb-4">Order Summary</h3>
+                <h3 className="font-bold mb-4">{t("checkout.orderSummary")}</h3>
 
                 {/* Coupon field */}
                 <div className="mb-4 pb-4 border-b border-momo">
@@ -403,7 +405,7 @@ export default function Checkout() {
                         <span className="text-accent font-bold">{coupon.code}</span> applied
                       </span>
                       <button onClick={handleRemoveCoupon} className="text-dim hover:text-red-400 text-xs underline">
-                        Remove
+                        {t("checkout.remove")}
                       </button>
                     </div>
                   ) : (
@@ -411,7 +413,7 @@ export default function Checkout() {
                       <input
                         value={couponInput}
                         onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                        placeholder="Discount code"
+                        placeholder={t("checkout.discountCode")}
                         className="flex-1 bg-transparent border border-momo text-[color:var(--momo-text)] px-3 py-2 text-sm placeholder:text-dim focus:outline-none focus:border-accent"
                         style={{ borderRadius: "8px" }}
                       />
@@ -421,7 +423,7 @@ export default function Checkout() {
                         className="px-4 py-2 text-xs font-bold uppercase tracking-wide bg-white/10 hover:bg-white/20 text-white disabled:opacity-50 transition-colors"
                         style={{ borderRadius: "8px" }}
                       >
-                        {couponLoading ? "..." : "Apply"}
+                        {couponLoading ? "..." : t("checkout.apply")}
                       </button>
                     </div>
                   )}
@@ -429,28 +431,28 @@ export default function Checkout() {
 
                 <div className="space-y-2 mb-4 pb-4 border-b border-momo">
                   <div className="flex justify-between">
-                    <span className="text-dim">Subtotal</span>
+                    <span className="text-dim">{t("cart.subtotal")}</span>
                     <span>{subtotal.toLocaleString()} LE</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-dim">Shipping</span>
+                    <span className="text-dim">{t("cart.shipping")}</span>
                     <span>
                       {!formData.governorate
-                        ? <span className="text-dim text-sm">Select governorate</span>
+                        ? <span className="text-dim text-sm">{t("checkout.selectGovFirst")}</span>
                         : shipping === 0
-                          ? "Free"
+                          ? t("cart.free")
                           : `${shipping} LE`}
                     </span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-accent">
-                      <span>Discount</span>
+                      <span>{t("checkout.discount")}</span>
                       <span>−{discount.toLocaleString()} LE</span>
                     </div>
                   )}
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-bold">Total</span>
+                  <span className="font-bold">{t("cart.total")}</span>
                   <span className="font-bold text-2xl text-accent">{total.toLocaleString()} LE</span>
                 </div>
               </div>
@@ -461,10 +463,10 @@ export default function Checkout() {
                 className="w-full btn-primary"
               >
                 {isSubmitting
-                  ? "Processing..."
+                  ? "..."
                   : paymentMethod === "online"
-                    ? "Continue to Payment"
-                    : "Place Order"}
+                    ? t("checkout.continuePayment")
+                    : t("checkout.placeOrder")}
               </Button>
 
               <Button

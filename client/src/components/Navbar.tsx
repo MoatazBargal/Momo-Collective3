@@ -3,18 +3,20 @@ import { Link, useLocation } from "wouter";
 import { ShoppingBag, Heart, Menu, X, User, Search, Sun, Moon } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import type { TranslationKey } from "@/i18n/translations";
 
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/shop", label: "Shop" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+const NAV_LINKS: { href: string; key: TranslationKey }[] = [
+  { href: "/", key: "nav.home" },
+  { href: "/shop", key: "nav.shop" },
+  { href: "/about", key: "nav.about" },
+  { href: "/contact", key: "nav.contact" },
 ];
 
-const SHOP_CATEGORIES = [
-  { slug: "tees", label: "T-Shirts", ar: "تيشيرتات" },
-  { slug: "denim", label: "Denim", ar: "دنيم" },
-  { slug: "hoodies", label: "Hoodies", ar: "هوديز" },
+const SHOP_CATEGORIES: { slug: string; key: TranslationKey }[] = [
+  { slug: "tees", key: "cat.tees" },
+  { slug: "denim", key: "cat.denim" },
+  { slug: "hoodies", key: "cat.hoodies" },
 ];
 
 export default function Navbar() {
@@ -23,6 +25,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { count } = useCart();
   const { theme, toggleTheme } = useTheme();
+  const { t, lang, toggleLang } = useLanguage();
 
   // Home page has a full-bleed hero — navbar starts transparent there and
   // turns to glass on scroll. Every other page is glass from the top.
@@ -90,7 +93,7 @@ export default function Navbar() {
                       }`}
                       style={{ fontFamily: "var(--font-display)" }}
                     >
-                      {link.label}
+                      {t(link.key)}
                     </span>
                   </Link>
                   {/* Mega menu */}
@@ -103,9 +106,8 @@ export default function Navbar() {
                       </Link>
                       {SHOP_CATEGORIES.map((cat) => (
                         <Link key={cat.slug} href={`/shop?category=${cat.slug}`}>
-                          <div className="px-4 py-2.5 flex items-center justify-between gap-4 text-white hover:text-accent hover:bg-white/10 cursor-pointer transition-colors" style={{ borderRadius: "8px" }}>
-                            <span className="text-xs font-bold uppercase tracking-widest whitespace-nowrap">{cat.label}</span>
-                            <span className="text-xs text-dim whitespace-nowrap" dir="rtl">{cat.ar}</span>
+                          <div className="px-4 py-2.5 text-white hover:text-accent hover:bg-white/10 cursor-pointer transition-colors" style={{ borderRadius: "8px" }}>
+                            <span className="text-xs font-bold uppercase tracking-widest whitespace-nowrap">{t(cat.key)}</span>
                           </div>
                         </Link>
                       ))}
@@ -120,7 +122,7 @@ export default function Navbar() {
                     }`}
                     style={{ fontFamily: "var(--font-display)" }}
                   >
-                    {link.label}
+                    {t(link.key)}
                   </span>
                 </Link>
               )
@@ -138,6 +140,13 @@ export default function Navbar() {
                 {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
             )}
+            <button
+              onClick={toggleLang}
+              className="px-2 py-2 nav-icon transition-colors text-xs font-bold uppercase tracking-widest"
+              aria-label={lang === "en" ? "التبديل للعربية" : "Switch to English"}
+            >
+              {lang === "en" ? "ع" : "EN"}
+            </button>
             <Link href="/shop">
               <button className="p-2 nav-icon transition-colors" aria-label="Search">
                 <Search className="w-5 h-5" />
@@ -199,7 +208,7 @@ export default function Navbar() {
                     }`}
                     style={{ fontFamily: "var(--font-display)" }}
                   >
-                    {link.label}
+                    {t(link.key)}
                   </span>
                 </Link>
               ))}

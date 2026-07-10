@@ -1,3 +1,4 @@
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useState, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -5,9 +6,19 @@ import { PRODUCT_CATEGORIES } from "@shared/const";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/motion/Reveal";
 import { useProducts } from "@/hooks/useProducts";
+import { useLanguage } from "@/contexts/LanguageContext";
+import type { TranslationKey } from "@/i18n/translations";
+
+const CAT_KEY: Record<string, TranslationKey> = {
+  tees: "cat.tees",
+  denim: "cat.denim",
+  hoodies: "cat.hoodies",
+};
 
 export default function Shop() {
+  usePageTitle("Shop All", "Browse the full Momo Collective streetwear drop — tees, denim, and hoodies. Cash on delivery across Egypt.");
   const { products, loading } = useProducts();
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc">("newest");
@@ -43,8 +54,8 @@ export default function Shop() {
       {/* Header */}
       <section className="section-padding-sm border-b border-momo">
         <div className="container">
-          <span className="eyebrow mb-2 block">Summer 2026</span>
-          <h1 className="heading-section">Shop All</h1>
+          <span className="eyebrow mb-2 block">{t("shop.eyebrow")}</span>
+          <h1 className="heading-section">{t("shop.title")}</h1>
         </div>
       </section>
 
@@ -54,7 +65,7 @@ export default function Shop() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-dim" />
             <Input
-              placeholder="Search products..."
+              placeholder={t("shop.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 bg-transparent border-momo text-[color:var(--momo-text)] placeholder:text-dim"
@@ -65,11 +76,11 @@ export default function Shop() {
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex flex-wrap gap-2">
               <FilterChip active={selectedCategory === null} onClick={() => setSelectedCategory(null)}>
-                All
+                {t("shop.all")}
               </FilterChip>
               {Object.entries(PRODUCT_CATEGORIES).map(([key, label]) => (
                 <FilterChip key={key} active={selectedCategory === key} onClick={() => setSelectedCategory(key)}>
-                  {label}
+                  {CAT_KEY[key] ? t(CAT_KEY[key]) : label}
                 </FilterChip>
               ))}
             </div>
@@ -80,9 +91,9 @@ export default function Shop() {
               className="bg-transparent border border-momo text-[color:var(--momo-text)] text-sm px-3 py-2 focus:outline-none focus:border-accent"
               style={{ borderRadius: 0 }}
             >
-              <option value="newest" style={{ color: "#000" }}>Newest</option>
-              <option value="price-asc" style={{ color: "#000" }}>Price: Low to High</option>
-              <option value="price-desc" style={{ color: "#000" }}>Price: High to Low</option>
+              <option value="newest" style={{ color: "#000" }}>{t("shop.newest")}</option>
+              <option value="price-asc" style={{ color: "#000" }}>{t("shop.priceLow")}</option>
+              <option value="price-desc" style={{ color: "#000" }}>{t("shop.priceHigh")}</option>
             </select>
           </div>
         </div>
@@ -91,12 +102,18 @@ export default function Shop() {
       {/* Grid */}
       <section className="section-padding container">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="surface-2 w-full" style={{ aspectRatio: "3/4", borderRadius: "12px" }} />
+                <div className="surface-2 h-4 w-2/3 mt-4" style={{ borderRadius: "4px" }} />
+                <div className="surface-2 h-4 w-1/3 mt-2" style={{ borderRadius: "4px" }} />
+              </div>
+            ))}
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-lg text-dim">No products found.</p>
+            <p className="text-lg text-dim">{t("shop.noProducts")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -125,7 +142,7 @@ function FilterChip({
     <button
       onClick={onClick}
       className={`px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors ${
-        active ? "bg-accent text-white" : "border border-momo text-white hover:border-accent"
+        active ? "bg-accent text-white" : "border border-momo text-[color:var(--momo-text)] hover:border-accent"
       }`}
       style={{ fontFamily: "var(--font-display)", borderRadius: 0 }}
     >

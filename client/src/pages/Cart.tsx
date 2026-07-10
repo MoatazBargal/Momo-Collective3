@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { CURRENCY_SYMBOL, WHATSAPP_NUMBER } from "@shared/const";
 import { useCart } from "@/contexts/CartContext";
 import { captureAbandonedCart } from "@/lib/api";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { FREE_SHIPPING_OVER, SHIPPING_ZONES } from "@shared/shipping";
 
 // Lowest zone fee, shown as an estimate before governorate is chosen
@@ -14,7 +16,9 @@ const MIN_SHIPPING = Math.min(...SHIPPING_ZONES.map((z) => z.fee));
 const SHIPPING_ESTIMATE = MIN_SHIPPING;
 
 export default function Cart() {
+  usePageTitle("Your Cart");
   const { items, subtotal, updateQuantity, removeItem } = useCart();
+  const { t } = useLanguage();
   const [savePhone, setSavePhone] = useState("");
   const [saved, setSaved] = useState(false);
 
@@ -56,12 +60,12 @@ export default function Cart() {
     return (
       <div style={{ backgroundColor: "var(--momo-bg)" }}>
         <div className="section-padding container">
-          <h1 className="heading-section mb-8">Shopping Cart</h1>
+          <h1 className="heading-section mb-8">{t("cart.title")}</h1>
           <div className="text-center py-20">
             <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-dim" />
-            <p className="text-xl text-dim mb-8">Your cart is empty</p>
+            <p className="text-xl text-dim mb-8">{t("cart.empty")}</p>
             <Link href="/shop">
-              <Button className="btn-primary">Continue Shopping</Button>
+              <Button className="btn-primary">{t("cart.continueShopping")}</Button>
             </Link>
           </div>
         </div>
@@ -72,7 +76,7 @@ export default function Cart() {
   return (
     <div style={{ backgroundColor: "var(--momo-bg)" }}>
       <div className="section-padding container glow-field overflow-hidden">
-        <h1 className="heading-section mb-8">Shopping Cart</h1>
+        <h1 className="heading-section mb-8">{t("cart.title")}</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Cart Items */}
@@ -132,29 +136,29 @@ export default function Cart() {
 
               <div className="space-y-4 mb-6 pb-6 border-b border-momo">
                 <div className="flex justify-between">
-                  <span className="text-dim">Subtotal</span>
+                  <span className="text-dim">{t("cart.subtotal")}</span>
                   <span className="font-semibold">{subtotal} {CURRENCY_SYMBOL}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-dim">Shipping</span>
+                  <span className="text-dim">{t("cart.shipping")}</span>
                   <span className="font-semibold">
-                    {freeShipping ? "Free" : `from ${shipping} ${CURRENCY_SYMBOL}`}
+                    {freeShipping ? t("cart.free") : `${t("common.from")} ${shipping} ${CURRENCY_SYMBOL}`}
                   </span>
                 </div>
                 {subtotal > 0 && subtotal < FREE_SHIPPING_OVER && (
                   <p className="text-xs text-dim">
-                    Add {FREE_SHIPPING_OVER - subtotal} {CURRENCY_SYMBOL} more for free shipping
+                    {`${FREE_SHIPPING_OVER - subtotal} ${CURRENCY_SYMBOL} ${t("cart.freeShippingHint")}`}
                   </p>
                 )}
               </div>
 
               <div className="flex justify-between mb-8">
-                <span className="font-bold text-lg">Total</span>
+                <span className="font-bold text-lg">{t("cart.total")}</span>
                 <span className="font-bold text-2xl text-accent">{total} {CURRENCY_SYMBOL}</span>
               </div>
 
               <Link href="/checkout">
-                <Button className="w-full btn-primary">Proceed to Checkout</Button>
+                <Button className="w-full btn-primary">{t("cart.checkout")}</Button>
               </Link>
 
               <a
@@ -164,12 +168,12 @@ export default function Cart() {
                 className="mt-3 w-full inline-flex items-center justify-center gap-2 py-3 font-bold uppercase tracking-wide transition-colors"
                 style={{ backgroundColor: "#25D366", color: "#0a0a0a", borderRadius: "10px" }}
               >
-                <MessageCircle className="w-5 h-5" /> Order via WhatsApp
+                <MessageCircle className="w-5 h-5" /> {t("cart.whatsappOrder")}
               </a>
 
               <Link href="/shop">
                 <Button variant="outline" className="w-full mt-3">
-                  Continue Shopping
+                  {t("cart.continueShopping")}
                 </Button>
               </Link>
 
@@ -177,16 +181,16 @@ export default function Cart() {
               <div className="mt-6 pt-6 border-t border-momo">
                 {saved ? (
                   <p className="text-sm text-accent text-center">
-                    ✓ We've saved your cart — we'll reach out on WhatsApp.
+                    ✓ {t("cart.saved")}
                   </p>
                 ) : (
                   <>
-                    <p className="text-sm text-dim mb-2">Not ready? Save your cart & we'll follow up:</p>
+                    <p className="text-sm text-dim mb-2">{t("cart.saveCartPrompt")}</p>
                     <div className="flex gap-2">
                       <input
                         value={savePhone}
                         onChange={(e) => setSavePhone(e.target.value)}
-                        placeholder="Your WhatsApp number"
+                        placeholder={t("cart.phonePlaceholder")}
                         className="flex-1 bg-transparent border border-momo text-[color:var(--momo-text)] px-3 py-2 text-sm placeholder:text-dim focus:outline-none focus:border-accent"
                         style={{ borderRadius: "8px" }}
                       />
@@ -196,7 +200,7 @@ export default function Cart() {
                         className="px-4 py-2 text-xs font-bold uppercase tracking-wide bg-white/10 hover:bg-white/20 text-[color:var(--momo-text)] disabled:opacity-50 transition-colors"
                         style={{ borderRadius: "8px" }}
                       >
-                        Save
+                        {t("cart.save")}
                       </button>
                     </div>
                   </>

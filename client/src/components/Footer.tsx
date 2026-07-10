@@ -2,9 +2,12 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Instagram, Send } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import type { TranslationKey } from "@/i18n/translations";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
+  const { t } = useLanguage();
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +26,9 @@ export default function Footer() {
         <div className="container section-padding-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <h2 className="heading-section mb-2">Join the Collective</h2>
+              <h2 className="heading-section mb-2">{t("footer.newsletter")}</h2>
               <p className="text-dim max-w-md">
-                First access to drops, restocks, and members-only releases. No spam.
+                {t("footer.newsletterSub")}
               </p>
             </div>
             <div className="flex gap-3 max-w-md md:ml-auto w-full">
@@ -33,7 +36,7 @@ export default function Footer() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email address"
+                placeholder={t("footer.emailPlaceholder")}
                 className="flex-1 bg-transparent border border-momo px-4 py-3 text-[color:var(--momo-text)] placeholder:text-dim focus:outline-none focus:border-accent"
                 style={{ borderRadius: 0 }}
               />
@@ -53,21 +56,21 @@ export default function Footer() {
               MOMO<span className="text-accent">.</span>
             </span>
             <p className="mt-4 text-dim text-sm leading-relaxed max-w-xs">
-              Built for culture. Driven by individuality. United by style.
+              {t("footer.tagline")}
             </p>
           </div>
 
           <div>
-            <h3 className="text-xs font-bold tracking-widest uppercase text-dim mb-4">Shop</h3>
+            <h3 className="text-xs font-bold tracking-widest uppercase text-dim mb-4">{t("footer.shop")}</h3>
             <ul className="space-y-2.5">
-              {[
-                { href: "/shop", label: "All Products" },
-                { href: "/wishlist", label: "Wishlist" },
-                { href: "/cart", label: "Cart" },
-              ].map((l) => (
+              {([
+                { href: "/shop", key: "nav.allProducts" },
+                { href: "/wishlist", key: "nav.wishlist" },
+                { href: "/cart", key: "nav.cart" },
+              ] as { href: string; key: TranslationKey }[]).map((l) => (
                 <li key={l.href}>
                   <Link href={l.href}>
-                    <span className="text-sm nav-text hover:text-accent transition-colors cursor-pointer">{l.label}</span>
+                    <span className="text-sm nav-text hover:text-accent transition-colors cursor-pointer">{t(l.key)}</span>
                   </Link>
                 </li>
               ))}
@@ -75,16 +78,16 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-xs font-bold tracking-widest uppercase text-dim mb-4">Company</h3>
+            <h3 className="text-xs font-bold tracking-widest uppercase text-dim mb-4">{t("footer.company")}</h3>
             <ul className="space-y-2.5">
-              {[
-                { href: "/about", label: "About" },
-                { href: "/contact", label: "Contact" },
-                { href: "/track", label: "Track Order" },
-              ].map((l) => (
+              {([
+                { href: "/about", key: "nav.about" },
+                { href: "/contact", key: "nav.contact" },
+                { href: "/track", key: "footer.trackOrder" },
+              ] as { href: string; key: TranslationKey }[]).map((l) => (
                 <li key={l.href}>
                   <Link href={l.href}>
-                    <span className="text-sm nav-text hover:text-accent transition-colors cursor-pointer">{l.label}</span>
+                    <span className="text-sm nav-text hover:text-accent transition-colors cursor-pointer">{t(l.key)}</span>
                   </Link>
                 </li>
               ))}
@@ -92,7 +95,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-xs font-bold tracking-widest uppercase text-dim mb-4">Connect</h3>
+            <h3 className="text-xs font-bold tracking-widest uppercase text-dim mb-4">{t("footer.connect")}</h3>
             <a href="https://instagram.com/momocollective" target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm nav-text hover:text-accent transition-colors">
               <Instagram className="w-4 h-4" /> Instagram
@@ -101,7 +104,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-momo flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-dim">
-          <span>© {new Date().getFullYear()} Momo Collective. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Momo Collective. {t("footer.rights")}</span>
           <span>Cairo, Egypt</span>
         </div>
       </div>

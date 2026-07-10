@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { X, Phone, Mail, MapPin, Package } from "lucide-react";
+import { X, Phone, Mail, MapPin, Package, Truck, Copy } from "lucide-react";
 import { fetchAdminOrder, updateOrderStatus, type AdminOrderDetail, type AdminOrderItem } from "@/lib/api";
 
 interface Props {
@@ -55,6 +55,32 @@ export default function AdminOrderDetailModal({ token, orderId, onClose, onStatu
       toast.error(err instanceof Error ? err.message : "Failed to update status");
     } finally {
       setUpdating(false);
+    }
+  };
+
+  // Build a Bosta-style shipment sheet the operator can copy into the courier app
+  const buildShipmentSheet = () => {
+    if (!order) return "";
+    const cod = order.paymentMethod === "COD" ? `${Number(order.total).toLocaleString()} EGP` : "0 (Prepaid)";
+    const itemLines = items.map((it) => `  - ${it.productName} (${it.color}/${it.size}) x${it.quantity}`).join("\n");
+    return [
+      `Order: ${order.orderNumber}`,
+      `Receiver: ${order.shippingFirstName} ${order.shippingLastName}`,
+      `Phone: ${order.shippingPhone}`,
+      `Address: ${order.shippingAddress}, ${order.shippingCity}`,
+      `COD Amount: ${cod}`,
+      `Items:`,
+      itemLines,
+      `Notes: ${order.notes || "—"}`,
+    ].join("\n");
+  };
+
+  const copyShipment = async () => {
+    try {
+      await navigator.clipboard.writeText(buildShipmentSheet());
+      toast.success("Shipment details copied — paste into Bosta");
+    } catch {
+      toast.error("Could not copy — select the text manually");
     }
   };
 
@@ -158,6 +184,26 @@ export default function AdminOrderDetailModal({ token, orderId, onClose, onStatu
                 </div>
               </div>
             </div>
+
+            {/* Prepare shipment (courier) */}
+            {order.status !== "Cancelled" && (
+              <div className="glass p-4" style={{ borderRadius: "12px" }}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Truck className="w-4 h-4 text-accent" />
+                    <span className="font-bold text-sm uppercase tracking-wide">Prepare Shipment</span>
+                  </div>
+                  <button
+                    onClick={copyShipment}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wide glass-chip text-white hover:text-accent transition-colors"
+                    style={{ borderRadius: "8px" }}
+                  >
+                    <Copy className="w-3.5 h-3.5" /> Copy for Bosta
+                  </button>
+                </div>
+                <pre className="text-xs text-white/70 whitespace-pre-wrap font-mono leading-relaxed">{buildShipmentSheet()}</pre>
+              </div>
+            )}
           </div>
         )}
       </div>

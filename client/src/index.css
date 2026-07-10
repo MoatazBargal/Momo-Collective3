@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700;800;900&display=swap");
 
 @import "tailwindcss";
 
@@ -41,30 +41,32 @@ html {
   background-color: var(--momo-bg);
 }
 
-body {
-  background-color: var(--momo-bg);
-  color: var(--momo-text);
-  font-family: var(--font-body);
-  font-feature-settings: "rlig" 1, "calt" 1;
-}
+@layer base {
+  body {
+    background-color: var(--momo-bg);
+    color: var(--momo-text);
+    font-family: var(--font-body);
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  color: var(--momo-text);
-}
-h1 { font-weight: 800; font-size: 2.5rem; line-height: 1.05; letter-spacing: -0.03em; }
-h2 { font-weight: 800; font-size: 1.875rem; line-height: 1.1; letter-spacing: -0.02em; }
-h3 { font-weight: 700; font-size: 1.5rem; line-height: 1.2; letter-spacing: -0.01em; }
-h4 { font-weight: 700; font-size: 1.25rem; line-height: 1.3; }
-@media (min-width: 768px) {
-  h1 { font-size: 4rem; }
-  h2 { font-size: 2.5rem; }
-  h3 { font-size: 1.875rem; }
-}
-@media (min-width: 1024px) { h1 { font-size: 5.5rem; } }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--momo-text);
+  }
+  h1 { font-weight: 800; font-size: 2.5rem; line-height: 1.05; letter-spacing: -0.03em; }
+  h2 { font-weight: 800; font-size: 1.875rem; line-height: 1.1; letter-spacing: -0.02em; }
+  h3 { font-weight: 700; font-size: 1.5rem; line-height: 1.2; letter-spacing: -0.01em; }
+  h4 { font-weight: 700; font-size: 1.25rem; line-height: 1.3; }
+  @media (min-width: 768px) {
+    h1 { font-size: 4rem; }
+    h2 { font-size: 2.5rem; }
+    h3 { font-size: 1.875rem; }
+  }
+  @media (min-width: 1024px) { h1 { font-size: 5.5rem; } }
 
-p { font-size: 1rem; line-height: 1.6; }
-small { font-size: 0.875rem; line-height: 1.5; }
+  p { font-size: 1rem; line-height: 1.6; }
+  small { font-size: 0.875rem; line-height: 1.5; }
+}
 
 .heading-hero {
   font-family: var(--font-display);
@@ -438,3 +440,21 @@ small { font-size: 0.875rem; line-height: 1.5; }
 
 .nav-text { color: var(--momo-text); }
 .nav-transparent .nav-text { color: #f5f5f5; }
+
+/* ===== Arabic / RTL ===== */
+html[dir="rtl"] {
+  --font-display: "Cairo", sans-serif;
+  --font-body: "Cairo", sans-serif;
+}
+html[dir="rtl"] body {
+  font-family: "Cairo", sans-serif;
+}
+/* Flip horizontal margins/padding utilities that assume LTR in key spots */
+html[dir="rtl"] .announcement-track {
+  animation-direction: reverse;
+}
+/* Keep the accent underline/italic look sensible in Arabic */
+html[dir="rtl"] .heading-hero,
+html[dir="rtl"] .heading-section {
+  letter-spacing: 0;
+}

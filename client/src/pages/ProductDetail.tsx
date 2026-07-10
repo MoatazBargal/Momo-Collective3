@@ -7,10 +7,17 @@ import ProductReviews from "@/components/ProductReviews";
 import SizeGuide from "@/components/SizeGuide";
 import { useCart } from "@/contexts/CartContext";
 import { useProduct } from "@/hooks/useProducts";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ProductDetail({ params }: { params: { slug: string } }) {
   const slug = params?.slug || "oversized-tee";
   const { product, related, loading } = useProduct(slug);
+  const { t } = useLanguage();
+  usePageTitle(
+    product ? product.name : "Product",
+    product ? `${product.name} — ${product.description?.slice(0, 120) || "Premium streetwear from Momo Collective."}` : undefined
+  );
   const { addItem } = useCart();
 
   const [selectedColor, setSelectedColor] = useState(product?.colors[0]?.name || "");
@@ -125,7 +132,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
             {/* Color */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest mb-3 text-dim">
-                Color — <span className="text-[color:var(--momo-text)]">{selectedColor}</span>
+                {t("product.color")} — <span className="text-[color:var(--momo-text)]">{selectedColor}</span>
               </label>
               <div className="flex gap-3">
                 {product.colors.map((color) => (
@@ -143,7 +150,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
 
             {/* Size */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-widest mb-3 text-dim">Size</label>
+              <label className="block text-xs font-bold uppercase tracking-widest mb-3 text-dim">{t("product.size")}</label>
               <div className="grid grid-cols-6 gap-2 mb-3">
                 {SIZES.map((size) => (
                   <button
@@ -177,7 +184,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
                   </button>
                 </div>
                 <button onClick={handleAddToCart} className="btn-primary flex-1 inline-flex items-center justify-center gap-2">
-                  <Check className="w-5 h-5" /> Add to Cart
+                  <Check className="w-5 h-5" /> {t("product.addToCart")}
                 </button>
               </div>
               <button onClick={handleToggleWishlist} className="btn-outline-light w-full inline-flex items-center justify-center gap-2">
@@ -190,9 +197,9 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
             <div className="glass p-4" style={{ borderRadius: "12px" }}>
               <p className="text-sm">
                 {product.inStock ? (
-                  <span className="text-accent font-bold uppercase tracking-wide">● In Stock</span>
+                  <span className="text-accent font-bold uppercase tracking-wide">● {t("product.inStock")}</span>
                 ) : (
-                  <span className="text-dim font-bold uppercase tracking-wide">Out of Stock</span>
+                  <span className="text-dim font-bold uppercase tracking-wide">{t("product.outOfStock")}</span>
                 )}
               </p>
             </div>
@@ -201,7 +208,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
             <div className="space-y-2">
               <details className="glass p-4 group" style={{ borderRadius: "12px" }}>
                 <summary className="flex items-center justify-between cursor-pointer font-bold text-sm uppercase tracking-wide list-none">
-                  Materials & Care
+                  {t("product.materials")}
                   <Plus className="w-4 h-4 group-open:rotate-45 transition-transform" />
                 </summary>
                 <div className="mt-3 text-sm text-[color:var(--momo-text)] opacity-80 space-y-1.5">
@@ -213,7 +220,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
               </details>
               <details className="glass p-4 group" style={{ borderRadius: "12px" }}>
                 <summary className="flex items-center justify-between cursor-pointer font-bold text-sm uppercase tracking-wide list-none">
-                  Shipping & Returns
+                  {t("product.shipping")}
                   <Plus className="w-4 h-4 group-open:rotate-45 transition-transform" />
                 </summary>
                 <div className="mt-3 text-sm text-[color:var(--momo-text)] opacity-80 space-y-1.5">
@@ -230,7 +237,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
         {/* Related */}
         {related.length > 0 && (
           <section className="mt-20 pt-12 border-t border-momo">
-            <h2 className="heading-subsection mb-8">You Might Also Like</h2>
+            <h2 className="heading-subsection mb-8">{t("product.related")}</h2>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {related.map((p) => (
                 <ProductCard key={p.id} product={p} />

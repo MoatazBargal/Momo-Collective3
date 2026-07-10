@@ -1,13 +1,17 @@
-const MESSAGES = [
-  "Free shipping on all orders over 2,000 LE",
-  "New Drop — Built for culture",
-  "Cash on delivery across Egypt",
-  "Limited quantities · Don't sleep on it",
+import { useLanguage } from "@/contexts/LanguageContext";
+import type { TranslationKey } from "@/i18n/translations";
+
+const MESSAGE_KEYS: TranslationKey[] = [
+  "announce.freeShipping",
+  "announce.newDrop",
+  "announce.cod",
+  "announce.limited",
 ];
 
 export default function AnnouncementBar() {
-  // Duplicate the list so the marquee loops seamlessly
-  const items = [...MESSAGES, ...MESSAGES];
+  const { t } = useLanguage();
+  const messages = MESSAGE_KEYS.map((k) => t(k));
+  const items = [...messages, ...messages];
 
   return (
     <div className="marquee" role="region" aria-label="Announcements">
