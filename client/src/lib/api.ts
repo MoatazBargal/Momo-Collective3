@@ -5,8 +5,8 @@ import type { CreateOrderInput } from "@shared/orderTypes";
  */
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api${path}`, {
-    headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
     ...init,
+    headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
   });
   if (!res.ok) {
     let message = `Request failed (${res.status})`;
