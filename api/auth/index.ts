@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { eq, desc, sql } from "drizzle-orm";
 import { getDb, schema } from "../../server-lib/db.js";
-import { applyCors, requireSuperAdmin } from "../../server-lib/utils.js";
+import { applyCors, requireSuperAdmin, describeServerError } from "../../server-lib/utils.js";
 import {
   hashPassword,
   verifyPassword,
@@ -115,7 +115,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.status(201).json({ user: created });
     } catch (err) {
       console.error("[auth signup] failed:", err);
-      res.status(500).json({ error: "Failed to create account" });
+      res.status(500).json({ error: describeServerError(err, "Failed to create account") });
     }
     return;
   }
@@ -146,7 +146,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     } catch (err) {
       console.error("[auth login] failed:", err);
-      res.status(500).json({ error: "Failed to sign in" });
+      res.status(500).json({ error: describeServerError(err, "Failed to sign in") });
     }
     return;
   }

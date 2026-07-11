@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { eq, and, sql, desc } from "drizzle-orm";
 import { getDb, schema } from "../../server-lib/db.js";
 import { sendOrderEmail } from "../../server-lib/email.js";
-import { generateOrderNumber, applyCors } from "../../server-lib/utils.js";
+import { generateOrderNumber, applyCors, describeServerError } from "../../server-lib/utils.js";
 import { createOrderSchema, computeTotals } from "../../shared/orderTypes.js";
 import { computeDiscount } from "../../shared/couponTypes.js";
 import { getSession } from "../../server-lib/auth.js";
@@ -241,6 +241,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (err) {
     console.error("[orders] create failed:", err);
-    res.status(500).json({ error: "Failed to create order" });
+    res.status(500).json({ error: describeServerError(err, "Failed to create order") });
   }
 }

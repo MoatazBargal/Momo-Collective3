@@ -198,15 +198,15 @@ export default function Navbar() {
             onClick={() => setMobileOpen(false)}
           />
           <div className="md:hidden absolute left-4 right-4 top-full mt-2 z-50 glass-strong overflow-hidden"
-            style={{ borderRadius: "14px" }}>
+            style={{ borderRadius: "14px", backgroundColor: "var(--momo-surface)" }}>
             <div className="py-2">
               {NAV_LINKS.map((link) => (
                 <Link key={link.href} href={link.href}>
                   <span
                     className={`block px-5 py-3 text-sm font-bold uppercase tracking-widest transition-colors cursor-pointer ${
-                      isActive(link.href) ? "text-accent glass-accent" : "nav-text hover:text-accent"
+                      isActive(link.href) ? "text-accent glass-accent" : "hover:text-accent"
                     }`}
-                    style={{ fontFamily: "var(--font-display)" }}
+                    style={{ fontFamily: "var(--font-display)", color: isActive(link.href) ? undefined : "var(--momo-text)" }}
                   >
                     {t(link.key)}
                   </span>
@@ -214,7 +214,10 @@ export default function Navbar() {
               ))}
               <div className="border-t border-momo mt-1 pt-1">
                 <Link href="/profile">
-                  <span className="block px-5 py-3 text-sm font-bold uppercase tracking-widest text-dim hover:text-white transition-colors cursor-pointer">
+                  <span
+                    className="block px-5 py-3 text-sm font-bold uppercase tracking-widest hover:text-accent transition-colors cursor-pointer"
+                    style={{ color: "var(--momo-text)", opacity: 0.7 }}
+                  >
                     My Account
                   </span>
                 </Link>
