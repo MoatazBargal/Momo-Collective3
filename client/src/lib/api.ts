@@ -13,6 +13,15 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
     try {
       const body = await res.json();
       message = body.error || message;
+      // Surface which field(s) failed validation instead of a generic message
+      if (body.details?.fieldErrors) {
+        const fieldMsgs = Object.entries(body.details.fieldErrors as Record<string, string[]>)
+          .filter(([, msgs]) => msgs && msgs.length > 0)
+          .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`);
+        if (fieldMsgs.length > 0) {
+          message = `${message} — ${fieldMsgs.join("; ")}`;
+        }
+      }
     } catch {
       /* ignore */
     }
