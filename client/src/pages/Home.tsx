@@ -39,7 +39,7 @@ export default function Home() {
             filter: "blur(80px)",
           }}
         />
-        <div className="relative h-full container flex flex-col justify-center">
+        <div className="relative h-full container flex flex-col justify-center pt-20">
           <div className="max-w-2xl">
             <span className="eyebrow mb-4 block">{t("home.eyebrow")}</span>
             <h1 className="heading-hero text-white mb-6">
@@ -49,34 +49,6 @@ export default function Home() {
             <p className="text-base md:text-lg text-white/80 max-w-lg mb-6 leading-relaxed">
               {t("home.heroSub")}
             </p>
-
-            {/* Glass gallery — "Different Angles" */}
-            <div className="glass p-4 mb-6 inline-block" style={{ borderRadius: "16px" }}>
-              <span className="eyebrow mb-3 block" style={{ letterSpacing: "0.3em" }}>{t("home.differentAngles")}</span>
-              <div className="flex gap-3 mb-4">
-                {[ASSETS.products.hoodie.compressed, ASSETS.products.hoodie.original, ASSETS.products.tee.compressed].map((img, i) => (
-                  <div
-                    key={i}
-                    className="glass-hover overflow-hidden"
-                    style={{ width: "72px", height: "90px", borderRadius: "10px", border: "1px solid var(--glass-border)" }}
-                  >
-                    <img src={img} alt={`Angle ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
-                  </div>
-                ))}
-              </div>
-              {/* Size chips */}
-              <div className="flex gap-2">
-                {["XS", "S", "M", "L"].map((size, i) => (
-                  <span
-                    key={size}
-                    className={`glass-chip px-3 py-1.5 text-xs font-bold ${i === 3 ? "glass-chip--active" : "text-white"}`}
-                    style={{ fontFamily: "var(--font-display)", borderRadius: "8px" }}
-                  >
-                    {size}
-                  </span>
-                ))}
-              </div>
-            </div>
 
             <div className="flex flex-wrap gap-4">
               <Link href="/shop">
