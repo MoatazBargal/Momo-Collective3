@@ -47,7 +47,7 @@ export default function Cart() {
       (it) => `• ${it.name} (${it.color}/${it.size}) ×${it.quantity} — ${it.price * it.quantity} ${CURRENCY_SYMBOL}`
     );
     const msg =
-      `مرحباً Momo Collective 👋\nحابب أطلب:\n\n${lines.join("\n")}\n\n` +
+      `مرحباً Élan Collective 👋\nحابب أطلب:\n\n${lines.join("\n")}\n\n` +
       `الإجمالي: ${subtotal} ${CURRENCY_SYMBOL}\n\nياريت تأكيد الطلب والتوصيل. شكراً!`;
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   };

@@ -40,7 +40,7 @@ export default function LoadingScreen() {
               className="font-black leading-none"
               style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}
             >
-              <div className="text-5xl md:text-7xl text-white">MOMO<span className="text-accent">.</span></div>
+              <div className="text-5xl md:text-7xl text-white">ÉLAN<span className="text-accent">.</span></div>
               <motion.div
                 initial={{ y: 16, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}

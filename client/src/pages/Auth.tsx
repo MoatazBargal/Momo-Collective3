@@ -79,7 +79,7 @@ export default function Auth() {
               className="font-black text-4xl tracking-tight text-[color:var(--momo-text)] cursor-pointer"
               style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}
             >
-              MOMO<span className="text-accent">.</span>
+              ÉLAN<span className="text-accent">.</span>
             </span>
           </Link>
         </div>

@@ -16,7 +16,7 @@ export default function Home() {
       <section className="relative w-full h-[calc(100vh-7rem)] min-h-[600px] overflow-hidden">
         <img
           src={ASSETS.heroBanner.compressed}
-          alt="Momo Collective"
+          alt="Élan Collective"
           className="absolute inset-0 w-full h-full object-cover"
           fetchPriority="high"
         />
@@ -121,7 +121,7 @@ export default function Home() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-[color:var(--momo-text)] opacity-75 text-lg leading-relaxed">
               <p>
-                Momo Collective is rooted in street culture. Every garment is designed with
+                Élan Collective is rooted in street culture. Every garment is designed with
                 intention — built to last, crafted to inspire the confident and the bold.
               </p>
               <p>

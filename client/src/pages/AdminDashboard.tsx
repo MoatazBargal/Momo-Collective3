@@ -155,7 +155,7 @@ export default function AdminDashboard() {
           <div className="text-center mb-8">
             <Link href="/">
               <span className="font-black text-3xl text-white cursor-pointer" style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}>
-                MOMO<span className="text-accent">.</span>
+                ÉLAN<span className="text-accent">.</span>
               </span>
             </Link>
             <p className="text-dim text-sm mt-2 uppercase tracking-widest">Admin Access</p>
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
                 type="email"
                 value={staffEmail}
                 onChange={(e) => setStaffEmail(e.target.value)}
-                placeholder="you@momocollective.com"
+                placeholder="you@elancollective.com"
                 className="w-full bg-transparent border border-momo text-white px-4 py-3 placeholder:text-dim focus:outline-none focus:border-accent"
                 style={{ borderRadius: 0 }}
               />

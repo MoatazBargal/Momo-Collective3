@@ -21,7 +21,7 @@ function stepIndex(status: string) {
 }
 
 export default function TrackOrder() {
-  usePageTitle("Track Your Order", "Check the status of your Momo Collective order.");
+  usePageTitle("Track Your Order", "Check the status of your Élan Collective order.");
   const { t } = useLanguage();
   const [orderNumber, setOrderNumber] = useState("");
   const [phone, setPhone] = useState("");
@@ -61,7 +61,7 @@ export default function TrackOrder() {
             <Input
               value={orderNumber}
               onChange={(e) => setOrderNumber(e.target.value.toUpperCase())}
-              placeholder="MOMO-20260101-XXXXXX"
+              placeholder="ELAN-20260101-XXXXXX"
               className="bg-transparent border-momo text-[color:var(--momo-text)] placeholder:text-dim"
             />
           </div>

@@ -53,7 +53,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
           <div className="col-span-2 md:col-span-1">
             <span className="font-black text-3xl tracking-tight" style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}>
-              MOMO<span className="text-accent">.</span>
+              ÉLAN<span className="text-accent">.</span>
             </span>
             <p className="mt-4 text-dim text-sm leading-relaxed max-w-xs">
               {t("footer.tagline")}
@@ -96,7 +96,7 @@ export default function Footer() {
 
           <div>
             <h3 className="text-xs font-bold tracking-widest uppercase text-dim mb-4">{t("footer.connect")}</h3>
-            <a href="https://instagram.com/momocollective" target="_blank" rel="noopener noreferrer"
+            <a href="https://instagram.com/elancollective" target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm nav-text hover:text-accent transition-colors">
               <Instagram className="w-4 h-4" /> Instagram
             </a>
@@ -104,7 +104,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-6 border-t border-momo flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-dim">
-          <span>© {new Date().getFullYear()} Momo Collective. {t("footer.rights")}</span>
+          <span>© {new Date().getFullYear()} Élan Collective. {t("footer.rights")}</span>
           <span>Cairo, Egypt</span>
         </div>
       </div>

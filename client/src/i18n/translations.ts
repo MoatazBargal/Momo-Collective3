@@ -1,5 +1,5 @@
 /**
- * Bilingual dictionary for Momo Collective (English + Arabic).
+ * Bilingual dictionary for Élan Collective (English + Arabic).
  * Keys are dot-namespaced by area. Use the `t()` from useLanguage().
  */
 

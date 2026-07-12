@@ -16,7 +16,7 @@ export default function ProductDetail({ params }: { params: { slug: string } }) 
   const { t } = useLanguage();
   usePageTitle(
     product ? product.name : "Product",
-    product ? `${product.name} — ${product.description?.slice(0, 120) || "Premium streetwear from Momo Collective."}` : undefined
+    product ? `${product.name} — ${product.description?.slice(0, 120) || "Premium streetwear from Élan Collective."}` : undefined
   );
   const { addItem } = useCart();
 

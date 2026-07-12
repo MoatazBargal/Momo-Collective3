@@ -76,7 +76,7 @@ export default function Navbar() {
                 className="font-black text-2xl tracking-tight nav-text cursor-pointer select-none"
                 style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}
               >
-                MOMO<span className="text-accent">.</span>
+                ÉLAN<span className="text-accent">.</span>
               </span>
             </Link>
           </div>
