@@ -84,22 +84,22 @@ export default function Cart() {
             {items.map((item) => (
               <div
                 key={item.lineId}
-                className="flex gap-6 p-6 glass glass-hover"
+                className="flex flex-wrap gap-4 sm:gap-6 p-4 sm:p-6 glass glass-hover"
                 style={{ borderRadius: "14px" }}
               >
-                <div className="w-24 h-24 flex-shrink-0 overflow-hidden surface-2" style={{ borderRadius: "10px" }}>
+                <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 overflow-hidden surface-2" style={{ borderRadius: "10px" }}>
                   {item.image && (
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
                   )}
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg mb-1">{item.name}</h3>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-lg mb-1 truncate">{item.name}</h3>
                   <p className="text-sm text-dim mb-3">
                     {item.color} • Size {item.size}
                   </p>
                   <p className="text-2xl font-bold text-accent">{item.price} {CURRENCY_SYMBOL}</p>
                 </div>
-                <div className="flex flex-col items-end gap-4">
+                <div className="flex sm:flex-col items-center sm:items-end justify-between gap-4 w-full sm:w-auto">
                   <button
                     onClick={() => removeItem(item.lineId)}
                     className="text-dim hover:text-red-500 transition-colors"
