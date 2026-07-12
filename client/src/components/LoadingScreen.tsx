@@ -19,7 +19,7 @@ export default function LoadingScreen() {
     const t = setTimeout(() => {
       setShow(false);
       sessionStorage.setItem("momo_intro_seen", "1");
-    }, 1900);
+    }, 1400); // hold 1.4s + 0.6s exit fade = 2.0s total
     return () => clearTimeout(t);
   }, [show]);
 
