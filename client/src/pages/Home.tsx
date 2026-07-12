@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div style={{ backgroundColor: "var(--momo-bg)" }}>
       {/* ===== HERO ===== */}
-      <section className="relative w-full h-[calc(100vh-7rem)] min-h-[600px] overflow-hidden">
+      <section className="relative w-full h-[calc(100vh-7rem)] min-h-[600px] overflow-hidden" style={{ backgroundColor: "#0a0a0a" }}>
         <img
           src={ASSETS.heroBanner.compressed}
           alt="Élan Collective"
@@ -24,6 +24,11 @@ export default function Home() {
         <div
           className="absolute inset-0"
           style={{ background: "linear-gradient(to right, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.4) 55%, rgba(10,10,10,0.2) 100%)" }}
+        />
+        {/* Extra top-strip scrim so the navbar stays readable full-width, regardless of the photo's brightness there */}
+        <div
+          className="absolute inset-x-0 top-0 h-24"
+          style={{ background: "linear-gradient(to bottom, rgba(10,10,10,0.65) 0%, transparent 100%)" }}
         />
         {/* Ambient accent glow to give the glass panel something to refract */}
         <div
