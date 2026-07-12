@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div style={{ backgroundColor: "var(--momo-bg)" }}>
       {/* ===== HERO ===== */}
-      <section className="relative w-full h-[calc(100vh-7rem)] min-h-[600px] overflow-hidden" style={{ backgroundColor: "#0a0a0a" }}>
+      <section className="relative w-full h-[calc(100vh-7rem)] min-h-[600px] overflow-hidden" style={{ backgroundColor: "#0a0a0a", marginTop: "-7rem" }}>
         <img
           src={ASSETS.heroBanner.compressed}
           alt="Élan Collective"
