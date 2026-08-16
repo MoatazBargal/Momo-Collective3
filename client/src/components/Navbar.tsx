@@ -5,6 +5,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { TranslationKey } from "@/i18n/translations";
+import logo from "./media/Logo.png";
 
 const NAV_LINKS: { href: string; key: TranslationKey }[] = [
   { href: "/", key: "nav.home" },
@@ -72,12 +73,11 @@ export default function Navbar() {
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
             <Link href="/">
-              <span
-                className="font-black text-2xl tracking-tight nav-text cursor-pointer select-none"
-                style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}
-              >
-                ÉLAN<span className="text-accent">.</span>
-              </span>
+              <img
+                src={logo}
+                alt={t("brand.name")}
+                className="h-8 md:h-9 w-auto cursor-pointer select-none"
+              />
             </Link>
           </div>
 

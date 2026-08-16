@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import logo from "./media/Logo.png";
 
 /**
  * Brand intro shown once per session on first load.
@@ -40,7 +41,7 @@ export default function LoadingScreen() {
               className="font-black leading-none"
               style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}
             >
-              <div className="text-5xl md:text-7xl text-white">ÉLAN<span className="text-accent">.</span></div>
+              <img src={logo} alt="OLTRÈ Collective" className="h-16 md:h-24 w-auto mx-auto" />
               <motion.div
                 initial={{ y: 16, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}

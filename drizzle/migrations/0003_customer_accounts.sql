@@ -17,7 +17,9 @@ EXCEPTION WHEN duplicate_object THEN null; END $$;
 ALTER TABLE "users" DROP COLUMN IF EXISTS "open_id";
 ALTER TABLE "users" DROP COLUMN IF EXISTS "login_method";
 ALTER TABLE "users" ALTER COLUMN "email" SET NOT NULL;
-ALTER TABLE "users" ADD CONSTRAINT IF NOT EXISTS "users_email_unique" UNIQUE ("email");
+DO $$ BEGIN
+  ALTER TABLE "users" ADD CONSTRAINT "users_email_unique" UNIQUE ("email");
+EXCEPTION WHEN duplicate_object THEN null; END $$;
 ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "password_hash" text NOT NULL DEFAULT '';
 ALTER TABLE "users" ALTER COLUMN "password_hash" DROP DEFAULT;
 ALTER TABLE "users" ALTER COLUMN "name" SET NOT NULL;
